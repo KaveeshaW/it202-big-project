@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width">
+    <title>Big Project</title>
+  <link href="https://unpkg.com/material-components-web@v4.0.0/dist/material-components-web.min.css" rel="stylesheet">
+  <script src="https://unpkg.com/material-components-web@v4.0.0/dist/material-components-web.min.js"></script>
+  
+  <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+
+  <style>
+    :root {
+      --mdc-theme-primary: navy;
+    }
+
+    body {margin: 0;}
+    main {margin-left: 8px;}
+    
+    .view {
+      display: none;
+    }
+  </style>
+
+  </head>
+  <body>  
+    
+    <aside class="mdc-drawer mdc-drawer--modal">
+    <div class="mdc-drawer__content">
+      <nav class="mdc-list">
+        <a class="mdc-list-item mdc-list-item--activated" href="#home" aria-current="page">
+          <i class="material-icons mdc-list-item__graphic" aria-hidden="true">home</i>
+          <span class="mdc-list-item__text">Home</span>
+        </a>
+        <a class="mdc-list-item" href="#search" aria-current="page">
+          <i class="material-icons mdc-list-item__graphic" aria-hidden="true">search</i>
+          <span class="mdc-list-item__text">Search</span>
+        </a>
+        <a class="mdc-list-item" href="#table">
+          <i class="material-icons mdc-list-item__graphic" aria-hidden="true">table_chart</i>
+          <span class="mdc-list-item__text">Table</span>
+        </a>
+        <a class="mdc-list-item" href="#chart">
+          <i class="material-icons mdc-list-item__graphic" aria-hidden="true">show_chart</i>
+          <span class="mdc-list-item__text">Chart</span>
+        </a>
+      </nav>
+    </div>
+  </aside>
+
+  <div class="mdc-drawer-scrim"></div>
+
+<header class="mdc-top-app-bar">
+  <div class="mdc-top-app-bar__row">
+    <section class="mdc-top-app-bar__section mdc-top-app-bar__section--align-start">
+      <button class="material-icons mdc-top-app-bar__navigation-icon mdc-icon-button">menu</button>
+      <span class="mdc-top-app-bar__title">Big Project</span>
+    </section>
+    <section class="mdc-top-app-bar__section mdc-top-app-bar__section--align-end" role="toolbar">
+      <button class="material-icons mdc-top-app-bar__action-item mdc-icon-button" aria-label="Download">file_download</button>
+      <button class="material-icons mdc-top-app-bar__action-item mdc-icon-button" aria-label="Print this page">print</button>
+      <button class="material-icons mdc-top-app-bar__action-item mdc-icon-button" aria-label="Bookmark this page">bookmark</button>
+    </section>
+  </div>
+</header>
+
+  <main class="mdc-top-app-bar--fixed-adjust">
+    <div class="view" id="home">Home
+      <p>This is the big project</p></div>
+    <div class="view" id="search">Search
+      
+    </div>
+    <div class="view" id="table">Confirmed Cases <div id="table_div"></div>
+    </div>
+    <div class="view" id="chart">Chart
+    <div id="curve_chart" style="width: 900px; height: 500px"></div></div>
+    
+    
+    
+  </main>
+  
+  <script src="https://unpkg.com/dexie@latest/dist/dexie.js"></script>
+  <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+    <script type="text/javascript">
+    
+    //-------------------------------------------------------------
+    //dexie database
+    const db = new Dexie('MyApp');
+        
+        db.version(1).stores({
+          favorites: '++id, title, date'
+        });
+
+        db.favorites.add({
+          title: "Once Upon a Time in Hollywood",
+          rating: 4,
+          year: 2019,
+          date: new Date()
+        });
+
+        db.favorites.add({
+          title: "Pad",
+          rating: 5,
+          year: 2019,
+          date: new Date()
+        });
+
+        db.favorites.add({
+          title: "Easdfag",
+          rating: 5,
+          year: 2019,
+          date: new Date()
+        });
+
+      //db.favorites.where("title").startsWith("O").delete();
+      
+      db.favorites.toArray()
+      .then((arr) => {
+        for(let a of arr){
+          let p = document.createElement("p");
+          p.textContent = a.title + ":" + a.date;
+          document.body.appendChild(p);
+        }
+        
+      }); 
+      //-------------------------------------------------------------
+    //-------------------------------------------------------------
+    //this has to do with the app shell logic itself
+    //mdc.ripple.MDCRipple.attachTo(document.querySelector('.foo-button'));
+    mdc.topAppBar.MDCTopAppBar.attachTo(document.querySelector('header.mdc-top-app-bar'));
+
+    const drawer = mdc.drawer.MDCDrawer.attachTo(document.querySelector('.mdc-drawer'));
+//     document.querySelector("div#curve_chart").style.display = "none";
+    
+    const hideViews = () => {
+      document.querySelectorAll("div.view").forEach(item => {
+        item.style.display = "none";
+      })  
+    };
+    
+    document.querySelector(".mdc-top-app-bar__navigation-icon")
+      .addEventListener("click", 
+          (e) => {drawer.open = true;}
+      );
+      
+    document.querySelectorAll("aside.mdc-drawer a.mdc-list-item").forEach(item => {
+      item.addEventListener('click', event => {
+        hideViews();
+        //could also use event.toElement.id if the specific tag has an id
+        //target is an id selector with the hash symbol
+        let target = item.getAttribute("href");
+        document.querySelector(target).style.display = "block";
+        drawer.open = false;
+      })
+    })
+    //-------------------------------------------------------------
+    </script>
+    
+  </body>
+</html>
