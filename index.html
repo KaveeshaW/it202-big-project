@@ -3,10 +3,11 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width">
+    <link rel="manifest" href="manifest.json" />
     <title>Big Project</title>
   <link href="https://unpkg.com/material-components-web@v4.0.0/dist/material-components-web.min.css" rel="stylesheet">
   <script src="https://unpkg.com/material-components-web@v4.0.0/dist/material-components-web.min.js"></script>
-  
+
   <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
 
   <style>
@@ -16,7 +17,7 @@
 
     body {margin: 0;}
     main {margin-left: 8px;}
-    
+
     .view {
       display: none;
     }
@@ -24,7 +25,8 @@
 
   </head>
   <body>  
-    
+    <!--we will put the cards in the container-->
+    <div class="container"></div>
     <aside class="mdc-drawer mdc-drawer--modal">
     <div class="mdc-drawer__content">
       <nav class="mdc-list">
@@ -66,63 +68,206 @@
 
   <main class="mdc-top-app-bar--fixed-adjust">
     <div class="view" id="home">Home
-      <p>This is the big project</p></div>
+      <p>This is the big project. The data comes from https://covidtracking.com/api/v1/states/current.json</p></div>
     <div class="view" id="search">Search
-      
+    <input list="countryList" name="country" id="theCountryList">
+      <datalist id="countryList">
+      </datalist>
+    <button type="submit" id="submitCountry">Add Country</button>
+    <button id="plotThings">Plot</button>
+    <p id="listOfCountries"></p>
     </div>
-    <div class="view" id="table">Confirmed Cases <div id="table_div"></div>
+    <div class="view" id="table">Table Of Confirmed Cases <div id="table_div"></div>
     </div>
     <div class="view" id="chart">Chart
     <div id="curve_chart" style="width: 900px; height: 500px"></div></div>
-    
-    
-    
+
   </main>
-  
+
   <script src="https://unpkg.com/dexie@latest/dist/dexie.js"></script>
+  <script src="js/app.js"></script>
+    
   <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
     <script type="text/javascript">
-    
+    //load google charts package
+      google.charts.load('current', {'packages':['corechart', 'table']});
+      let totalRecovered = 0;
+      let countryNames = [];
+      let specificData = {};
+      let userPlotted = false;
+      let stateNames = [];
+      getData = () => {
+        fetch("https://covidtracking.com/api/v1/states/current.json")
+        .then(response => response.json()) 
+        .then(data => {
+          for(const state in data) {
+            stateNames.push(state);
+          }
+          console.log(stateNames);
+        });
+        //fetch data
+        fetch("https://pomber.github.io/covid19/timeseries.json")
+      .then(response => response.json())
+      .then(data => {
+        specificData = data;
+        let dataList = document.querySelector("#countryList"); 
+        for(const country in data) {
+           //gets the names of every country
+           countryNames.push(country);
+          
+          //for the option menu showing all of the different countries
+           let option = document.createElement("option");
+           option.textContent = country;
+           option.value = country;
+           dataList.appendChild(option);
+        }
+      });
+      }
+      
+      //adds the country to a list that will be used to display later
+      let whichCountry = document.querySelector("#theCountryList");
+      let userSelection = [];
+      document.querySelector("#submitCountry")
+        .addEventListener("click", (event) =>
+        {
+        //clears everything
+        if(userPlotted) {
+          userSelection = [];
+          realData = [];
+          specificRow = [];
+          chart.clearChart();
+          table.clearChart();
+        }
+        userSelection.push(whichCountry.value);
+         let paragraph = document.querySelector("#listOfCountries");
+        if(userPlotted) {
+          paragraph.textContent = "";
+          userPlotted = false;
+        }
+         paragraph.textContent += whichCountry.value +" ";
+        whichCountry.value = "";
+        console.log(userSelection);
+        });
+      
+      //let totalDataPoints = 0;
+      let maxDataPoints = 0;
+      let dataArray = [["date", "confirmed", "country"]];
+      console.log(specificData["US"]);
+      let realData = [];
+      let count = 0;
+      let specificRow = [];
+      let alreadyPushed = false;
+      let date = "";
+      document.querySelector("#plotThings")
+        .addEventListener("click", (event) =>                        
+        {
+          userPlotted = true;
+          //populates the first row with the date and the country
+          specificRow.push("Date");
+          for(const country of userSelection) {
+            specificRow.push(country);
+          }
+          realData.push(specificRow);
+        
+          //checking the data that is in the json, I looked at china and it started at 1-22-2020
+          //and the US started on that date too. From that point I figured that all of the dates start at the same point
+          //so I kind of hard coded it to just the US, but it will change based on the number of days in the data
+          for(let index = 0; index < specificData["US"].length; index++) {
+            //this is done so that there isn't one big row but multiple small rows for each day
+            specificRow = [];
+            for(const country of userSelection) {
+                //I only want to push the date once per row
+                if(alreadyPushed === false) {
+                  date = specificData[country][index].date;
+                  specificRow.push(date);
+                  alreadyPushed = true;
+                }
+                let numConfirmed = specificData[country][index].confirmed;
+                specificRow.push(numConfirmed);
+            }
+            //pushes the row into the table of data I will use to plot the graph and the table
+            realData.push(specificRow);
+            alreadyPushed = false;
+          }
+          console.log(realData);
+          let paragraph = document.querySelector("#listOfCountries");
+          paragraph.textContent += "When you add countries after plotting, the table and chart will reset. You can see what homepage is supposed to look like now (not related to you clicking the button but rather changing the scene from home to search)";
+          document.querySelector("#search").style.display = "none";
+          document.querySelector("#table").style.display = "block";
+          drawChart(realData);
+          drawTable(realData);
+      });
+      
+      //-------------------------------------------------------------
+      //creates the line chart
+      let chart;
+      drawChart = (dataArray) => {
+        
+        //convert into a google charts table
+        //the first row needs to be what each column represents, otherwise the array would not work
+        let data = new google.visualization.arrayToDataTable(dataArray);
+        let options = {
+          title: 'COVID-19 Confirmed Cases',
+          curveType: 'function',
+          legend: { position: 'bottom' }
+        };
+        chart = new google.visualization.LineChart(document.querySelector('#curve_chart'));
+        chart.draw(data, options);
+      }
+      //-------------------------------------------------------------
+      
+      //-------------------------------------------------------------
+      //creates the table 
+      let table;
+      drawTable = (dataArray) => {
+        let data = new google.visualization.arrayToDataTable(dataArray);
+        table = new google.visualization.Table(document.getElementById('table_div'));
+        table.draw(data, {width: '50%', height: '50%'});
+      }
+      //-------------------------------------------------------------
+         
+    google.charts.setOnLoadCallback(getData);
+
     //-------------------------------------------------------------
     //dexie database
-    const db = new Dexie('MyApp');
-        
-        db.version(1).stores({
-          favorites: '++id, title, date'
-        });
+//     const db = new Dexie('MyApp');
 
-        db.favorites.add({
-          title: "Once Upon a Time in Hollywood",
-          rating: 4,
-          year: 2019,
-          date: new Date()
-        });
+//         db.version(1).stores({
+//           favorites: '++id, title, date'
+//         });
 
-        db.favorites.add({
-          title: "Pad",
-          rating: 5,
-          year: 2019,
-          date: new Date()
-        });
+//         db.favorites.add({
+//           title: "Once Upon a Time in Hollywood",
+//           rating: 4,
+//           year: 2019,
+//           date: new Date()
+//         });
 
-        db.favorites.add({
-          title: "Easdfag",
-          rating: 5,
-          year: 2019,
-          date: new Date()
-        });
+//         db.favorites.add({
+//           title: "Pad Thai Hero",
+//           rating: 5,
+//           year: 2019,
+//           date: new Date()
+//         });
 
-      //db.favorites.where("title").startsWith("O").delete();
-      
-      db.favorites.toArray()
-      .then((arr) => {
-        for(let a of arr){
-          let p = document.createElement("p");
-          p.textContent = a.title + ":" + a.date;
-          document.body.appendChild(p);
-        }
-        
-      }); 
+//         db.favorites.add({
+//           title: "Quantum",
+//           rating: 5,
+//           year: 2019,
+//           date: new Date()
+//         });
+
+//       //db.favorites.where("title").startsWith("O").delete();
+
+//       db.favorites.toArray()
+//       .then((arr) => {
+//         for(let a of arr){
+//           let p = document.createElement("p");
+//           p.textContent = a.title + ":" + a.date;
+//           document.body.appendChild(p);
+//         }
+
+//       }); 
       //-------------------------------------------------------------
     //-------------------------------------------------------------
     //this has to do with the app shell logic itself
@@ -131,18 +276,18 @@
 
     const drawer = mdc.drawer.MDCDrawer.attachTo(document.querySelector('.mdc-drawer'));
 //     document.querySelector("div#curve_chart").style.display = "none";
-    
+
     const hideViews = () => {
       document.querySelectorAll("div.view").forEach(item => {
         item.style.display = "none";
       })  
     };
-    
+
     document.querySelector(".mdc-top-app-bar__navigation-icon")
       .addEventListener("click", 
           (e) => {drawer.open = true;}
       );
-      
+
     document.querySelectorAll("aside.mdc-drawer a.mdc-list-item").forEach(item => {
       item.addEventListener('click', event => {
         hideViews();
@@ -155,6 +300,6 @@
     })
     //-------------------------------------------------------------
     </script>
-    
+
   </body>
-</html>
+</html> 

@@ -1,23 +1,16 @@
-const staticDevCoffee = "dev-coffee-site-v1"
+const bigProject = "big-project-v1"
+//stores all of the files so that it can be accessed offline
 const assets = [
   "/",
   "/index.html",
-  "/css/style.css",
   "/js/app.js",
-  "/images/coffee1.jpg",
-  "/images/coffee2.jpg",
-  "/images/coffee3.jpg",
-  "/images/coffee4.jpg",
-  "/images/coffee5.jpg",
-  "/images/coffee6.jpg",
-  "/images/coffee7.jpg",
-  "/images/coffee8.jpg",
-  "/images/coffee9.jpg",
+  "/images/virus.jpg",
 ]
 
+//installs the service worker
 self.addEventListener("install", installEvent => {
   installEvent.waitUntil(
-    caches.open(staticDevCoffee).then(cache => {
+    caches.open(bigProject).then(cache => {
       cache.addAll(assets)
     })
   )
