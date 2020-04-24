@@ -285,7 +285,9 @@
 
     document.querySelector(".mdc-top-app-bar__navigation-icon")
       .addEventListener("click", 
-          (e) => {drawer.open = true;}
+          (e) => {
+      console.log("i'm in the hamburger");
+      drawer.open = true;}
       );
 
     document.querySelectorAll("aside.mdc-drawer a.mdc-list-item").forEach(item => {
