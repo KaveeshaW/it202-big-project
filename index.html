@@ -203,6 +203,10 @@
           paragraph.textContent += "When you add countries after plotting, the table and chart will reset.";
           document.querySelector("#search").style.display = "none";
           document.querySelector("#table").style.display = "block";
+          
+          //shows the right tab in the hamburger
+          document.querySelector("[href='#search']").classList.remove("mdc-list-item--activated");
+          document.querySelector("[href='#table']").classList.add("mdc-list-item--activated");
           drawChart(realData);
           drawTable(realData);
       });
