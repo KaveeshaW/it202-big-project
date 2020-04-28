@@ -46,6 +46,10 @@
           <i class="material-icons mdc-list-item__graphic" aria-hidden="true">show_chart</i>
           <span class="mdc-list-item__text">Chart</span>
         </a>
+        <a class="mdc-list-item" href="#history">
+          <i class="material-icons mdc-list-item__graphic" aria-hidden="true">history</i>
+          <span class="mdc-list-item__text">History</span>
+        </a>
       </nav>
     </div>
   </aside>
@@ -69,6 +73,7 @@
   <main class="mdc-top-app-bar--fixed-adjust">
     <div class="view" id="home">Home
       <p>This is the big project. The data comes from https://covidtracking.com/api/v1/states/current.json</p></div>
+    
     <div class="view" id="search">Search
     <input list="countryList" name="country" id="theCountryList">
       <datalist id="countryList">
@@ -76,19 +81,15 @@
     <button type="submit" id="submitCountry">Add Country</button>
     <button id="plotThings">Plot</button>
     <p id="listOfCountries"></p>
-<!--     <br> -->
-<!--     <input list="stateList" name="state" id="theStateList">
-      <datalist id="stateList">
-      </datalist>
-    <button type="submit" id="submitState">Add Country</button>
-    <button id="plotThings">Plot</button>
-    <p id="listOfStates"></p> -->
-   
     </div>
+    
     <div class="view" id="table">Table Of Confirmed Cases <div id="table_div"></div>
     </div>
+    
     <div class="view" id="chart">Chart
     <div id="curve_chart" style="width: 900px; height: 500px"></div></div>
+    
+    <div class="view" id="history">This is the history of the countries you have plotted so far</div>
 
   </main>
 
@@ -105,6 +106,7 @@
       let userPlotted = false;
       let stateNames = [];
       getData = () => {
+        //first api
         fetch("https://covidtracking.com/api/v1/states/current.json")
         .then(response => response.json()) 
         .then(data => {
@@ -114,7 +116,8 @@
           }
           console.log(stateNames);
         });
-        //fetch data
+        
+        //second api
         fetch("https://pomber.github.io/covid19/timeseries.json")
       .then(response => response.json())
       .then(data => {
@@ -246,7 +249,7 @@
     const db = new Dexie('BigProject');
 
     db.version(1).stores({
-      favorites: '++id, title'
+      favorites: '++id, country'
     });
 
 //     db.favorites.add({
@@ -278,6 +281,7 @@
 //     }
 //   }); 
       //-------------------------------------------------------------
+   
     //-------------------------------------------------------------
     //this has to do with the app shell logic itself
     //mdc.ripple.MDCRipple.attachTo(document.querySelector('.foo-button'));
