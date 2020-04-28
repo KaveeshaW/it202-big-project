@@ -89,7 +89,9 @@
     <div class="view" id="chart">Chart
     <div id="curve_chart" style="width: 900px; height: 500px"></div></div>
     
-    <div class="view" id="history">This is the history of the countries you have plotted so far</div>
+    <div class="view" id="history">This is the history of the countries you have plotted so far (not added)
+    <p id="historyDisplay"></p>
+    </div>
 
   </main>
 
@@ -105,6 +107,21 @@
       let specificData = {};
       let userPlotted = false;
       let stateNames = [];
+      
+      //-------------------------------------------------------------
+      //dexie database
+      const db = new Dexie('BigProject');
+
+      db.version(1).stores({
+        previousCountries: '++id, country, date'
+      });
+      //-------------------------------------------------------------
+      
+//       db.previousCountries.add({
+//         title: "US",
+//         date: new Date()
+//       });
+      
       getData = () => {
         //first api
         fetch("https://covidtracking.com/api/v1/states/current.json")
@@ -149,16 +166,18 @@
           specificRow = [];
           chart.clearChart();
           table.clearChart();
+          //document.querySelector("p#historyDisplay").textContent = "";
         }
         userSelection.push(whichCountry.value);
-         let paragraph = document.querySelector("#listOfCountries");
+        let paragraph = document.querySelector("#listOfCountries");
         if(userPlotted) {
           paragraph.textContent = "";
           userPlotted = false;
         }
-         paragraph.textContent += whichCountry.value +" ";
+        paragraph.textContent += whichCountry.value + " ";
+        
+        //the value where the user choses the country is set to blank
         whichCountry.value = "";
-        console.log(userSelection);
         });
       
       //let totalDataPoints = 0;
@@ -170,15 +189,46 @@
       let specificRow = [];
       let alreadyPushed = false;
       let date = "";
+      let plotNumber = 1;
       document.querySelector("#plotThings")
         .addEventListener("click", (event) =>                        
         {
           userPlotted = true;
           //populates the first row with the date and the country
           specificRow.push("Date");
-          for(const country of userSelection) {
-            specificRow.push(country);
+        
+          let eachPlotParagraph = document.createElement("p");
+           eachPlotParagraph.textContent = "This is plot number: " + plotNumber;
+           document.querySelector("p#historyDisplay").appendChild(eachPlotParagraph);
+           plotNumber++;
+        
+          for(const myCountry of userSelection) {
+            specificRow.push(myCountry);
+            //adds it to the database
+            db.previousCountries.add({
+              country: myCountry,
+              date: new Date()
+            });
+            
+           db.previousCountries.toCollection().last()
+          .then( (choice) => {
+              let p = document.createElement("p");
+              p.textContent = choice.country + " " + choice.date;
+              document.querySelector("p#historyDisplay").appendChild(p);
+           });
           }
+//           let p = document.createElement("p");
+//           p.textContent = a.country + " " + a.date;
+//           document.querySelector("p#historyDisplay").appendChild(p);
+          
+//           db.previousCountries.toArray()
+//           .then((arr) => {
+//             for(let a of arr){
+//               let p = document.createElement("p");
+//               p.textContent = a.country + " " + a.date;
+//               document.querySelector("p#historyDisplay").appendChild(p);
+//             }
+//           }); 
           realData.push(specificRow);
         
           //checking the data that is in the json, I looked at china and it started at 1-22-2020
@@ -246,16 +296,17 @@
 
     //-------------------------------------------------------------
     //dexie database
-    const db = new Dexie('BigProject');
+//     const db = new Dexie('BigProject');
 
-    db.version(1).stores({
-      favorites: '++id, country'
-    });
+//     db.version(1).stores({
+//       favorites: '++id, country, date'
+//     });
 
 //     db.favorites.add({
 //       title: "Once Upon a Time in Hollywood",
 //       rating: 4,
-//       year: 2019
+//       year: 2019,
+//       date: new Date()
 //     });
 
 //     db.favorites.add({
