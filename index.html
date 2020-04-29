@@ -91,7 +91,7 @@
     <div class="view" id="chart">Chart
     <div id="curve_chart" style="width: 900px; height: 500px"></div></div>
     
-    <div class="view" id="history">This is the history of the countries you have plotted so far (not added)
+    <div class="view" id="history">This is the history of the countries you have plotted (not added to the list) so far 
     <p id="historyDisplay"></p>
     </div>
 
@@ -102,14 +102,18 @@
     
   <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
     <script type="text/javascript">
-    if ("serviceWorker" in navigator) {
-      window.addEventListener("load", function() {
-        navigator.serviceWorker
-          .register("/serviceWorker.js")
-          .then(res => console.log("service worker registered"))
-          .catch(err => console.log("service worker not registered", err))
-      })
-    } 
+    if ('serviceWorker' in navigator) {
+        //wait for load
+        window.addEventListener('load', () => {
+          navigator.serviceWorker.register('./serviceWorker.js').then((registration) => {
+            // Registration was successful
+            console.log('ServiceWorker registration successful with scope: ', registration.scope);
+          }, (err) => {
+            // registration failed :(
+            console.log('ServiceWorker registration failed: ', err);
+          });
+        });
+      }
 
     //load google charts package
       google.charts.load('current', {'packages':['corechart', 'table']});
@@ -139,10 +143,10 @@
         .then(response => response.json()) 
         .then(data => {
           for(const state of data) {
-            console.log(state);
+            //console.log(state);
             stateNames.push(state.state);
           }
-          console.log(stateNames);
+          //console.log(stateNames);
         });
         
         //second api
@@ -194,7 +198,7 @@
       //let totalDataPoints = 0;
       let maxDataPoints = 0;
       let dataArray = [["date", "confirmed", "country"]];
-      console.log(specificData["US"]);
+      //console.log(specificData["US"]);
       let realData = [];
       let count = 0;
       let specificRow = [];
@@ -262,7 +266,7 @@
             realData.push(specificRow);
             alreadyPushed = false;
           }
-          console.log(realData);
+          //console.log(realData);
           let paragraph = document.querySelector("#listOfCountries");
           paragraph.textContent += "When you add countries after plotting, the table and chart will reset.";
           document.querySelector("#search").style.display = "none";
