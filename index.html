@@ -3,12 +3,14 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width">
-    <link rel="manifest" href="manifest.json" />
+<!--     <link rel="manifest" href="manifest.json" /> -->
     <title>Big Project</title>
   <link href="https://unpkg.com/material-components-web@v4.0.0/dist/material-components-web.min.css" rel="stylesheet">
   <script src="https://unpkg.com/material-components-web@v4.0.0/dist/material-components-web.min.js"></script>
 
   <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+    
+  <link rel="manifest" href="./site.webmanifest">
 
   <style>
     :root {
@@ -72,7 +74,7 @@
 
   <main class="mdc-top-app-bar--fixed-adjust">
     <div class="view" id="home">Home
-      <p>This is the big project. The data comes from https://covidtracking.com/api/v1/states/current.json</p></div>
+      <p>This is the big project. The data comes from https://pomber.github.io/covid19/timeseries.json</p></div>
     
     <div class="view" id="search">Search
     <input list="countryList" name="country" id="theCountryList">
@@ -100,6 +102,15 @@
     
   <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
     <script type="text/javascript">
+    if ("serviceWorker" in navigator) {
+      window.addEventListener("load", function() {
+        navigator.serviceWorker
+          .register("/serviceWorker.js")
+          .then(res => console.log("service worker registered"))
+          .catch(err => console.log("service worker not registered", err))
+      })
+    } 
+
     //load google charts package
       google.charts.load('current', {'packages':['corechart', 'table']});
       let totalRecovered = 0;
@@ -258,8 +269,8 @@
           document.querySelector("#table").style.display = "block";
           
           //shows the right tab in the hamburger
-          document.querySelector("[href='#search']").classList.remove("mdc-list-item--activated");
-          document.querySelector("[href='#table']").classList.add("mdc-list-item--activated");
+//           document.querySelector("[href='#search']").classList.remove("mdc-list-item--activated");
+//           document.querySelector("[href='#table']").classList.add("mdc-list-item--activated");
           drawChart(realData);
           drawTable(realData);
       });
