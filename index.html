@@ -96,7 +96,7 @@
     
     <div class="view" id="weather">This page shows the weather at your current location if you allow it, otherwise it will not display anything
     <button id="getLocation">Enable Location</button>
-    <p id="yourWeather"></p>
+    <p id="weatherInfo"></p>
     </div>
 
 
@@ -143,14 +143,6 @@
 //       });
       
       getData = () => {
-        //first api
-        let weatherURL = "https://api.openweathermap.org/data/2.5/weather?lat=42.0315136&lon=-88.0795984&units=imperial&appid=f4969555fb49e9a8e0c6d4f181a2a3e0";
-        fetch(weatherURL)
-        .then(response => response.json()) 
-        .then(data => {
-          console.log(data);
-        });
-        
         //second api
         fetch("https://pomber.github.io/covid19/timeseries.json")
       .then(response => response.json())
@@ -293,6 +285,41 @@
 //             document.querySelector("div#chart").textContent = "cannot access data offline";
 //           }
       });
+      
+      const weatherInfo = document.querySelector("p#weatherInfo");
+      //handles logic with the weather screen
+      document.querySelector("button#getLocation").addEventListener("click", (event) => {
+         
+         //does the browser support geolocation?
+         if (!navigator.geolocation) {
+            weatherInfo.textContent = 'Geolocation is not supported by your browser';
+          } else {
+            weatherInfo.textContent = 'Locating…';
+            //there are two different callback functions, one is by default, the other one is optional where I want to handle the error
+            navigator.geolocation.getCurrentPosition(success, error) ;
+          }
+//         navigator.geolocation.getCurrentPosition((position) => {
+//           let lat = position.coords.latitude;
+//           let lng = position.coords.longitude;
+//           console.log(lat);
+//           console.log(lng);
+//         });
+      });
+      
+      success = (position) => {
+        let lat = position.coords.latitude;
+        let lng = position.coords.longitude;
+        console.log(lat);
+        console.log(lng);
+      }
+      
+      error = (err) => {
+        weatherInfo.textContent = "unable to retrieve your location because either you blocked access or you exited the dialog box";
+        //console.warn(`ERROR(${err.code}): ${err.message}`);
+//         //         let myBr = document.c
+//         weatherInfo.appendChild(document.createElement("br"));
+//         weatherInfo.textContent += "Error code: " + error.code + " error message: " + error.message; 
+      }
       
       //-------------------------------------------------------------
       //creates the line chart
