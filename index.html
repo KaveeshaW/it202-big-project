@@ -50,7 +50,7 @@
         </a>
         <a class="mdc-list-item" href="#chart">
           <i class="material-icons mdc-list-item__graphic" aria-hidden="true">show_chart</i>
-          <span class="mdc-list-item__text">Chart</span>
+          <span class="mdc-list-item__text">Line Chart</span>
         </a>
         <a class="mdc-list-item" href="#history">
           <i class="material-icons mdc-list-item__graphic" aria-hidden="true">history</i>
@@ -76,10 +76,11 @@
 </header>
 
   <main class="mdc-top-app-bar--fixed-adjust">
-    <div class="view" id="home">Home
-      <p>This is the big project. The data comes from https://pomber.github.io/covid19/timeseries.json</p></div>
+    <div class="view" id="home"><h1>Home</h1>
+      <p>This is the big project. <br> The data comes from https://pomber.github.io/covid19/timeseries.json 
+      and https://api.openweathermap.org/data/2.5/weather (with the use of an api key)</p></div>
     
-    <div class="view" id="search">Search
+    <div class="view" id="search"> <h1>Search</h1> <br>
     <input list="countryList" name="country" id="theCountryList">
       <datalist id="countryList">
       </datalist>
@@ -88,17 +89,21 @@
     <p id="listOfCountries"></p>
     </div>
     
-    <div class="view" id="table">Table Of Confirmed Cases <div id="table_div"></div>
+    <div class="view" id="table"><h1>Table Of Confirmed Cases</h1> <div id="table_div"></div>
     </div>
     
-    <div class="view" id="chart">Chart
+    <div class="view" id="chart"><h1>Line Chart</h1>
     <div id="curve_chart" style="width: 900px; height: 500px"></div></div>
     
-    <div class="view" id="history">This is the history of the countries you have plotted (not added to the list) so far 
+    <div class="view" id="history">
+      <h1>History</h1>
+      This is the history of the countries you have plotted (not added to the list) so far 
     <p id="historyDisplay"></p>
     </div>
     
-    <div class="view" id="weather">This page shows the weather at your current location if you allow it, otherwise it will not display anything
+    <div class="view" id="weather"><h1>Weather</h1>
+    <br>This page shows the weather at your current location if you allow it, otherwise it will not display anything
+    <br><br>
     <button id="getLocation">Enable Location</button>
     <p id="weatherInfo"></p>
       
