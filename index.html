@@ -52,6 +52,10 @@
           <i class="material-icons mdc-list-item__graphic" aria-hidden="true">history</i>
           <span class="mdc-list-item__text">History</span>
         </a>
+        <a class="mdc-list-item" href="#weather">
+          <i class="material-icons mdc-list-item__graphic" aria-hidden="true">wb_sunny</i>
+          <span class="mdc-list-item__text">Weather</span>
+        </a>
       </nav>
     </div>
   </aside>
@@ -63,11 +67,6 @@
     <section class="mdc-top-app-bar__section mdc-top-app-bar__section--align-start">
       <button class="material-icons mdc-top-app-bar__navigation-icon mdc-icon-button">menu</button>
       <span class="mdc-top-app-bar__title">Big Project</span>
-    </section>
-    <section class="mdc-top-app-bar__section mdc-top-app-bar__section--align-end" role="toolbar">
-      <button class="material-icons mdc-top-app-bar__action-item mdc-icon-button" aria-label="Download">file_download</button>
-      <button class="material-icons mdc-top-app-bar__action-item mdc-icon-button" aria-label="Print this page">print</button>
-      <button class="material-icons mdc-top-app-bar__action-item mdc-icon-button" aria-label="Bookmark this page">bookmark</button>
     </section>
   </div>
 </header>
@@ -94,6 +93,12 @@
     <div class="view" id="history">This is the history of the countries you have plotted (not added to the list) so far 
     <p id="historyDisplay"></p>
     </div>
+    
+    <div class="view" id="weather">This page shows the weather at your current location if you allow it, otherwise it will not display anything
+    <button id="getLocation">Enable Location</button>
+    <p id="yourWeather"></p>
+    </div>
+
 
   </main>
 
@@ -139,14 +144,11 @@
       
       getData = () => {
         //first api
-        fetch("https://covidtracking.com/api/v1/states/current.json")
+        let weatherURL = "https://api.openweathermap.org/data/2.5/weather?lat=42.0315136&lon=-88.0795984&units=imperial&appid=f4969555fb49e9a8e0c6d4f181a2a3e0";
+        fetch(weatherURL)
         .then(response => response.json()) 
         .then(data => {
-          for(const state of data) {
-            //console.log(state);
-            stateNames.push(state.state);
-          }
-          //console.log(stateNames);
+          console.log(data);
         });
         
         //second api
@@ -211,7 +213,8 @@
           userPlotted = true;
           //populates the first row with the date and the country
           specificRow.push("Date");
-        
+          
+          //plots the user data in the history page
           let eachPlotParagraph = document.createElement("p");
            eachPlotParagraph.textContent = "This is plot number: " + plotNumber;
            document.querySelector("p#historyDisplay").appendChild(eachPlotParagraph);
@@ -224,7 +227,7 @@
               country: myCountry,
               date: new Date()
             });
-            
+           //while in the loop, each country chosen to be plotted will be plotted
            db.previousCountries.toCollection().last()
           .then( (choice) => {
               let p = document.createElement("p");
@@ -275,8 +278,20 @@
           //shows the right tab in the hamburger
 //           document.querySelector("[href='#search']").classList.remove("mdc-list-item--activated");
 //           document.querySelector("[href='#table']").classList.add("mdc-list-item--activated");
+
           drawChart(realData);
           drawTable(realData);
+//           if(navigator.onLine === true) {
+//             console.log("here!!!");
+//             document.querySelector("div#table").textContent = "Table of Confirmed Cases";
+//             document.querySelector("div#chart").textContent = "Chart";
+//             drawChart(realData);
+//             drawTable(realData);
+//           }
+//           else {
+//             document.querySelector("div#table").textContent = "cannot access data offline";
+//             document.querySelector("div#chart").textContent = "cannot access data offline";
+//           }
       });
       
       //-------------------------------------------------------------
