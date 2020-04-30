@@ -23,6 +23,10 @@
     .view {
       display: none;
     }
+    
+    .template {
+      display: none;
+    }
   </style>
 
   </head>
@@ -97,6 +101,34 @@
     <div class="view" id="weather">This page shows the weather at your current location if you allow it, otherwise it will not display anything
     <button id="getLocation">Enable Location</button>
     <p id="weatherInfo"></p>
+      
+    <!-- Card that will be used to display the weather -->
+    <div class="mdc-card template demo-card">
+      <div class="mdc-card__primary-action demo-card__primary-action" tabindex="0">
+<!--         <div class="mdc-card__media mdc-card__media--16-9 demo-card__media" style="background-image: url(&quot;https://material-components.github.io/material-components-web-catalog/static/media/photos/3x2/2.jpg&quot;);"></div> -->
+        <div class="demo-card__primary">
+          <h2 class="demo-card__title mdc-typography mdc-typography--headline6">Our Changing Planet</h2>
+          <h3 class="demo-card__subtitle mdc-typography mdc-typography--subtitle2">by Kurt Wagner</h3>
+        </div>
+        <div class="demo-card__secondary mdc-typography mdc-typography--body2">Visit ten places on our planet that are undergoing the biggest changes today.</div>
+      </div>
+<!--       <div class="mdc-card__actions">
+        <div class="mdc-card__action-buttons">
+          <button class="mdc-button mdc-card__action mdc-card__action--button">  <span class="mdc-button__ripple"></span> Read</button>
+          <button class="mdc-button mdc-card__action mdc-card__action--button">  <span class="mdc-button__ripple"></span> Bookmark</button>
+        </div>
+        <div class="mdc-card__action-icons">
+          <button class="mdc-icon-button mdc-card__action mdc-card__action--icon--unbounded" aria-pressed="false" aria-label="Add to favorites" title="Add to favorites">
+            <i class="material-icons mdc-icon-button__icon mdc-icon-button__icon--on">favorite</i>
+            <i class="material-icons mdc-icon-button__icon">favorite_border</i>
+          </button>
+          <button class="mdc-icon-button material-icons mdc-card__action mdc-card__action--icon--unbounded" title="Share" data-mdc-ripple-is-unbounded="true">share</button>
+          <button class="mdc-icon-button material-icons mdc-card__action mdc-card__action--icon--unbounded" title="More options" data-mdc-ripple-is-unbounded="true" id="human">accessibility</button>
+        </div>
+      </div> -->
+    </div> 
+    <!-- Card that will be used to display the weather -->
+    
     </div>
 
 
@@ -306,12 +338,46 @@
 //         });
       });
       
+      //the getCurrentPosition function gives back access to the location data
       success = (position) => {
         let lat = position.coords.latitude;
         let lng = position.coords.longitude;
-        console.log(lat);
-        console.log(lng);
-        let weatherAPI = "https://api.openweathermap.org/data/2.5/weather?appid=f4969555fb49e9a8e0c6d4f181a2a3e0&lat=20&lon=40";
+        
+        //has my key and the right units, longitude and latitude
+        let weatherApi = "https://api.openweathermap.org/data/2.5/weather?appid=f4969555fb49e9a8e0c6d4f181a2a3e0&units=imperial" + "&lat=" + lat + "&lon=" + lng;;
+        //returns street view
+//         let streetView = "https://maps.googleapis.com/maps/api/streetview?size=456x456&key=AIzaSyAujKzyHSByW_g3z-CRvoxFEFIBjhe9YPg&location=" + lat + "," + lng;
+//         const urls = [
+//           weatherApi,
+//           streetView
+//         ]
+//         //maps all of the fetches into an array
+//         const allRequests = urls.map( (url) => {
+//           fetch(url).then( (response) => {
+//                           response.json()
+//           })
+//         });
+        
+//         //need to access the data
+//         Promise.all(allRequests).then((arrayOfResponses) => {
+//           console.log("The data from the server:", arrayOfResponses);
+//         })
+        
+        fetch(weatherApi)
+        .then(response => response.json())
+        .then(data => {
+          weatherInfo.textContent = 'Success';
+          console.log(data);
+          let clone = document.querySelector("div.template").cloneNode(true);
+          clone.classList.remove("template");
+          clone.querySelector("h2").textContent = "Local Weather Report For " + data.name;
+          clone.querySelector("h3").textContent = "The temperature currently in " + data.name + " is " + data.main.temp + " degrees fahrenheit, but it feels like " + data.main.feels_like + " degrees fahrenheit.";
+          clone.querySelector(".mdc-typography--body2").textContent = "Wind speeds are at " + data.wind.speed + " miles per hour " + "and cloudiness is at " + data.clouds.all + "%"
+          document.querySelector("div#weather").appendChild(clone);
+        })
+        
+        
+        //weatherInfo.textContent = 'Success!!';
       }
       
       error = (err) => {
