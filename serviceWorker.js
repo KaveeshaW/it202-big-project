@@ -10,8 +10,8 @@ let urlsToCache = [
   './icons/apple-touch-icon.png',
   './icons/favicon-16x16.png',
   './icons/favicon-32x32.png',
-  'https://covidtracking.com/api/v1/states/current.json',
-  'https://pomber.github.io/covid19/timeseries.json'
+  'https://pomber.github.io/covid19/timeseries.json',
+  ''
 ];
 
 //installs the service worker
