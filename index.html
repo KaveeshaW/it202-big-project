@@ -247,128 +247,80 @@
       //used to display on the history page
       let plotNumber = 1;
       document.querySelector("#plotThings")
-        .addEventListener("click", (event) =>                        
-        {
-          userPlotted = true;
-          //populates the first row with the date and the country
-          specificRow.push("Date");
-          
-          //plots the user data in the history page
-          let eachPlotParagraph = document.createElement("p");
-           eachPlotParagraph.textContent = "This is plot number: " + plotNumber;
-           document.querySelector("p#historyDisplay").appendChild(eachPlotParagraph);
-           plotNumber++;
-        
-          for(const myCountry of userSelection) {
-              specificRow.push(myCountry);
-              //adds it to the database
-              db.previousCountries.add({
-                country: myCountry,
-                date: new Date()
-              });
-             //while in the loop, each country chosen to be plotted will be plotted
-             db.previousCountries.toCollection().last()
-            .then( (choice) => {
-                let p = document.createElement("p");
-                p.textContent = choice.country + " " + choice.date;
-                document.querySelector("p#historyDisplay").appendChild(p);
-             });
-          }
+      .addEventListener("click", (event) =>                        
+      {
+        userPlotted = true;
+        //populates the first row with the date and the country
+        specificRow.push("Date");
 
-          realData.push(specificRow);
-        
-          //checking the data that is in the json, I looked at china and it started at 1-22-2020
-          //and the US started on that date too. From that point I figured that all of the dates start at the same point
-          //so I kind of hard coded it to just the US, but it will change based on the number of days in the data
-          for(let index = 0; index < specificData["US"].length; index++) {
-            //this is done so that there isn't one big row but multiple small rows for each day
-            specificRow = [];
-            for(const country of userSelection) {
-                //I only want to push the date once per row
-                if(alreadyPushed === false) {
-                  date = specificData[country][index].date;
-                  specificRow.push(date);
-                  alreadyPushed = true;
-                }
-                let numConfirmed = specificData[country][index].confirmed;
-                specificRow.push(numConfirmed);
-            }
-            //pushes the row into the table of data I will use to plot the graph and the table
-            realData.push(specificRow);
-            alreadyPushed = false;
+        //plots the user data in the history page
+        let eachPlotParagraph = document.createElement("p");
+         eachPlotParagraph.textContent = "This is plot number: " + plotNumber;
+         document.querySelector("p#historyDisplay").appendChild(eachPlotParagraph);
+         plotNumber++;
+
+        for(const myCountry of userSelection) {
+            specificRow.push(myCountry);
+            //adds it to the database
+            db.previousCountries.add({
+              country: myCountry,
+              date: new Date()
+            });
+           //while in the loop, each country chosen to be plotted will be plotted
+           db.previousCountries.toCollection().last()
+          .then( (choice) => {
+              let p = document.createElement("p");
+              p.textContent = choice.country + " " + choice.date;
+              document.querySelector("p#historyDisplay").appendChild(p);
+           });
+        }
+
+        realData.push(specificRow);
+
+        //checking the data that is in the json, I looked at china and it started at 1-22-2020
+        //and the US started on that date too. From that point I figured that all of the dates start at the same point
+        //so I kind of hard coded it to just the US, but it will change based on the number of days in the data
+        for(let index = 0; index < specificData["US"].length; index++) {
+          //this is done so that there isn't one big row but multiple small rows for each day
+          specificRow = [];
+          for(const country of userSelection) {
+              //I only want to push the date once per row
+              if(alreadyPushed === false) {
+                date = specificData[country][index].date;
+                specificRow.push(date);
+                alreadyPushed = true;
+              }
+              let numConfirmed = specificData[country][index].confirmed;
+              specificRow.push(numConfirmed);
           }
-          //console.log(realData);
-          let paragraph = document.querySelector("#listOfCountries");
-          paragraph.textContent += "When you add countries after plotting, the table and chart will reset.";
-          document.querySelector("#search").style.display = "none";
-          document.querySelector("#table").style.display = "block";
-          
-          //shows the right tab in the hamburger
+          //pushes the row into the table of data I will use to plot the graph and the table
+          realData.push(specificRow);
+          alreadyPushed = false;
+        }
+        //console.log(realData);
+        let paragraph = document.querySelector("#listOfCountries");
+        paragraph.textContent += "When you add countries after plotting, the table and chart will reset.";
+        document.querySelector("#search").style.display = "none";
+        document.querySelector("#table").style.display = "block";
+
+        //shows the right tab in the hamburger
 //           document.querySelector("[href='#search']").classList.remove("mdc-list-item--activated");
 //           document.querySelector("[href='#table']").classList.add("mdc-list-item--activated");
-          document.querySelectorAll("a.mdc-list-item").forEach(item => {
-            item.classList.remove("mdc-list-item--activated");
-          }); 
-          document.querySelector("[href='#table']").classList.add("mdc-list-item--activated");
+        document.querySelectorAll("a.mdc-list-item").forEach(item => {
+          item.classList.remove("mdc-list-item--activated");
+        }); 
+        document.querySelector("[href='#table']").classList.add("mdc-list-item--activated");
 
-//           drawChart(realData);
-//           drawTable(realData);
-          if(navigator.onLine === true) {
-            //DELETES ALL SUB ELEMENTS
-//             document.querySelector("div#table").textContent = "Table of Confirmed Cases";
-//             document.querySelector("div#chart").textContent = "Chart";
-            drawTable(realData);
-            drawChart(realData);
-            
-          }
-          else {
-            document.querySelector("div#table").textContent = "cannot create table offline";
-            document.querySelector("div#chart").textContent = "cannot create line chart offline";
-          }
+        if(navigator.onLine === true) {
+          drawTable(realData);
+          drawChart(realData);
+        }
+        else {
+          //DELETES ALL SUB ELEMENTS
+          document.querySelector("div#table").textContent = "cannot create table offline";
+          document.querySelector("div#chart").textContent = "cannot create line chart offline";
+        }
       });
-      
-      const weatherInfo = document.querySelector("p#weatherInfo");
-      //handles logic with the weather screen
-      document.querySelector("button#getLocation").addEventListener("click", (event) => {
-         
-         //does the browser support geolocation?
-         if (!navigator.geolocation) {
-            weatherInfo.textContent = 'Geolocation is not supported by your browser';
-          } else {
-            weatherInfo.textContent = 'Locating…';
-            //there are two different callback functions, one is by default, the other one is optional where I want to handle the error
-            navigator.geolocation.getCurrentPosition(success, error) ;
-          }
-      });
-      
-      //the getCurrentPosition function gives back access to the location data
-      success = (position) => {
-        let lat = position.coords.latitude;
-        let lng = position.coords.longitude;
-        
-        //has my key and the right units, longitude and latitude
-        let weatherApi = "https://api.openweathermap.org/data/2.5/weather?appid=f4969555fb49e9a8e0c6d4f181a2a3e0&units=imperial" + "&lat=" + lat + "&lon=" + lng;;
-        
-        fetch(weatherApi)
-        .then(response => response.json())
-        .then(data => {
-          weatherInfo.textContent = 'Success';
-          console.log(data);
-          let clone = document.querySelector("div.template").cloneNode(true);
-          clone.classList.remove("template");
-          clone.querySelector("h2").textContent = "Local Weather Report For " + data.name;
-          clone.querySelector("h3").textContent = "The temperature currently in " + data.name + " is " + data.main.temp + " degrees fahrenheit, but it feels like " + data.main.feels_like + " degrees fahrenheit.";
-          clone.querySelector(".mdc-typography--body2").textContent = "Wind speeds are at " + data.wind.speed + " miles per hour " + "and cloudiness is at " + data.clouds.all + "%"
-          document.querySelector("div#weather").appendChild(clone);
-        })
-        
-        
-        //weatherInfo.textContent = 'Success!!';
-      }
-      
-      error = (err) => {
-        weatherInfo.textContent = "unable to retrieve your location because either you blocked access or you exited the dialog box";
-      }
       
       //-------------------------------------------------------------
       //creates the line chart
@@ -378,18 +330,16 @@
         //convert into a google charts table
         //the first row needs to be what each column represents, otherwise the array would not work
         let data = new google.visualization.arrayToDataTable(dataArray);
-        data.addColumn('number', 'Day');
-        for(const myCountry of userSelection) {
-          
-        }
+        console.log(data);
         
         let options = {
           title: 'COVID-19 Confirmed Cases',
           curveType: 'function',
-          legend: { position: 'bottom' }
+          legend: { position: 'bottom' },
         };
         
         chart = new google.visualization.LineChart(document.querySelector('#curve_chart'));
+        
         chart.draw(data, options);
       }
       //-------------------------------------------------------------
@@ -406,7 +356,50 @@
       //-------------------------------------------------------------
          
     google.charts.setOnLoadCallback(getData);
-   
+      
+    const weatherInfo = document.querySelector("p#weatherInfo");
+    //handles logic with the weather screen
+    document.querySelector("button#getLocation").addEventListener("click", (event) => {
+
+       //does the browser support geolocation?
+       if (!navigator.geolocation) {
+          weatherInfo.textContent = 'Geolocation is not supported by your browser';
+        } else {
+          weatherInfo.textContent = 'Locating…';
+          //there are two different callback functions, one is by default, the other one is optional where I want to handle the error
+          navigator.geolocation.getCurrentPosition(success, error) ;
+        }
+    });
+
+    //---------------------------------------------------
+    //weather
+    //the getCurrentPosition function gives back access to the location data
+    success = (position) => {
+      let lat = position.coords.latitude;
+      let lng = position.coords.longitude;
+
+      //has my key and the right units, longitude and latitude
+      let weatherApi = "https://api.openweathermap.org/data/2.5/weather?appid=f4969555fb49e9a8e0c6d4f181a2a3e0&units=imperial" + "&lat=" + lat + "&lon=" + lng;;
+
+      fetch(weatherApi)
+      .then(response => response.json())
+      .then(data => {
+        weatherInfo.textContent = 'Success';
+        console.log(data);
+        let clone = document.querySelector("div.template").cloneNode(true);
+        clone.classList.remove("template");
+        clone.querySelector("h2").textContent = "Local Weather Report For " + data.name;
+        clone.querySelector("h3").textContent = "The temperature currently in " + data.name + " is " + data.main.temp + " degrees fahrenheit, but it feels like " + data.main.feels_like + " degrees fahrenheit.";
+        clone.querySelector(".mdc-typography--body2").textContent = "Wind speeds are at " + data.wind.speed + " miles per hour " + "and cloudiness is at " + data.clouds.all + "%"
+        document.querySelector("div#weather").appendChild(clone);
+      })
+    }
+
+    error = (err) => {
+      weatherInfo.textContent = "unable to retrieve your location because either you blocked access or you exited the dialog box";
+    }
+    //---------------------------------------------------
+
     //-------------------------------------------------------------
     //this has to do with the app shell logic itself
     //mdc.ripple.MDCRipple.attachTo(document.querySelector('.foo-button'));

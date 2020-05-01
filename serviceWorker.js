@@ -53,6 +53,8 @@ self.addEventListener('fetch', function(event) {
     caches.match(event.request)
       .then(function(response) {
         // Cache hit - return response
+        // if you make changes and refresh, it won't show up. Make sure you either delete the cache or 
+        // comment this code out
         if (response) {
           return response;
         }
