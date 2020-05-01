@@ -212,11 +212,12 @@
       
       //adds the country to a list that will be used to display later
       let whichCountry = document.querySelector("#theCountryList");
+      //the selection of which country they want to plot
       let userSelection = [];
       document.querySelector("#submitCountry")
         .addEventListener("click", (event) =>
         {
-        //clears everything
+        //clears everything if the user had already plotted
         if(userPlotted) {
           userSelection = [];
           realData = [];
@@ -241,11 +242,14 @@
       let maxDataPoints = 0;
       let dataArray = [["date", "confirmed", "country"]];
       //console.log(specificData["US"]);
+      //what will be plotted in the chart
       let realData = [];
       let count = 0;
+      //specific row of the chart or table
       let specificRow = [];
       let alreadyPushed = false;
       let date = "";
+      //used to display on the history page
       let plotNumber = 1;
       document.querySelector("#plotThings")
         .addEventListener("click", (event) =>                        
