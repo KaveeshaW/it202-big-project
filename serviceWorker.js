@@ -1,6 +1,9 @@
-const CACHE_NAME = 'big-project-v7';
+const CACHE_NAME = 'big-project-v1';
 //stores all of the files so that it can be accessed offline
+//you don't type in index.html the first time, so include ./
+//sometimes you want to show people with index.html
 let urlsToCache = [
+  './',
   './index.html',
   'https://unpkg.com/material-components-web@v4.0.0/dist/material-components-web.min.css',
   'https://unpkg.com/material-components-web@v4.0.0/dist/material-components-web.min.js',
@@ -10,7 +13,7 @@ let urlsToCache = [
   './icons/apple-touch-icon.png',
   './icons/favicon-16x16.png',
   './icons/favicon-32x32.png',
-  'https://pomber.github.io/covid19/timeseries.json'
+  'https://unpkg.com/dexie@latest/dist/dexie.js'
 ];
 
 //installs the service worker
@@ -29,7 +32,7 @@ self.addEventListener('install', (event) => {
 //deletes all unwated cache
 self.addEventListener('activate', (event) => {
   console.log("activating");
-  let cacheWhitelist = ['big-project-v7'];
+  let cacheWhitelist = ['big-project-v1'];
 
   event.waitUntil(
     caches.keys().then((cacheNames) => {
@@ -50,9 +53,9 @@ self.addEventListener('fetch', function(event) {
     caches.match(event.request)
       .then(function(response) {
         // Cache hit - return response
-//         if (response) {
-//           return response;
-//         }
+        if (response) {
+          return response;
+        }
 
         return fetch(event.request).then(
           function(response) {
@@ -79,19 +82,3 @@ self.addEventListener('fetch', function(event) {
     );
 });
 
-//installs the service worker
-//install, put these stuff into cache
-// self.addEventListener('install', (event) => {
-//   // Perform install steps
-//   event.waitUntil(
-//     caches.open(CACHE_NAME)
-//       .then(function(cache) {
-//         console.log('Opened cache');
-//         return cache.addAll(urlsToCache.map((urlToPrefetch) => {
-//                   return new Request(urlsToCache, { mode: 'no-cors' });
-//                 })).then(() => {
-//                   console.log('All resources have been fetched and cached.');
-//                 });
-//       })
-//   );
-// });
