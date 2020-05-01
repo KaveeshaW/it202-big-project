@@ -1,4 +1,4 @@
-const CACHE_NAME = 'big-project-v1';
+const CACHE_NAME = 'big-project-v2';
 //stores all of the files so that it can be accessed offline
 //you don't type in index.html the first time, so include ./
 //sometimes you want to show people with index.html
@@ -13,7 +13,7 @@ let urlsToCache = [
   './icons/apple-touch-icon.png',
   './icons/favicon-16x16.png',
   './icons/favicon-32x32.png',
-  'https://unpkg.com/dexie@latest/dist/dexie.js'
+  'https://unpkg.com/dexie@latest/dist/dexie.js',
 ];
 
 //installs the service worker
@@ -32,7 +32,7 @@ self.addEventListener('install', (event) => {
 //deletes all unwated cache
 self.addEventListener('activate', (event) => {
   console.log("activating");
-  let cacheWhitelist = ['big-project-v1'];
+  let cacheWhitelist = ['big-project-v2'];
 
   event.waitUntil(
     caches.keys().then((cacheNames) => {
