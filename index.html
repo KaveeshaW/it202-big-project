@@ -17,7 +17,10 @@
       --mdc-theme-primary: navy;
     }
 
-    body {margin: 0;}
+    body {
+      margin: 0;
+      background: #afddf2;
+    }
     main {margin-left: 8px;}
 
     .view {
@@ -27,6 +30,10 @@
     .template {
       display: none;
     }
+    
+    #map {
+        height: 80%;
+      }
   </style>
 
   </head>
@@ -117,6 +124,74 @@
       <span class="mdc-button__label">Enable Location</span>
     </button>
     <p id="weatherInfo"></p>
+    <div id="map"></div>
+      <script>
+        // This example displays a marker at the center of Australia.
+        // When the user clicks the marker, an info window opens.
+
+        function initMap() {
+          let map = new google.maps.Map(document.querySelector('#map'), {
+            zoom: 8,
+            center: {lat: 50, lng: 50}
+          });
+
+          let marker = new google.maps.Marker({
+            position: {lat: 50, lng: 50},
+            map: map
+          });
+
+          navigator.geolocation.getCurrentPosition((position) => {
+            let lat = position.coords.latitude;
+            let lng = position.coords.longitude;
+            map.setCenter({lat: lat, lng: lng});
+            console.log(lat);
+            console.log(lng);
+          });
+          // for (let data of inspection_data) {
+          //   console.log(data.address); 
+          //   let newPlace = {lat: parseFloat(data.latitude), lng: parseFloat(data.longitude)};
+
+          //   let name = data.dba_name;
+          //   let fType = data.facility_type;
+          //   let address = data.address;
+          //   //this returns a string that has a T value that you do not want
+          //   let overallDate = data.inspection_date;
+          //   //this splits the string so that you get an array with the date and a bunch of zeros
+          //   let arrayDate = overallDate.split("T");
+          //   //this takes the first element in the array (the date) and puts it into the variable inspecDate
+          //   let inspecDate = arrayDate.shift();
+          //   let results = data.results;
+          //   var contentString = '<div id="content">'+
+          //   '<div id="siteNotice">'+
+          //   '</div>'+
+          //   '<h1 id="firstHeading" class="firstHeading">' + name + '</h1>'+
+          //   '<div id="bodyContent">'+
+          //   'This is the name of the place: ' + name
+          //   + '<br> This is the facility type: ' + fType
+          //   + '<br> This is the address of the place: ' + address
+          //   + '<br> This is the inspectionDate: ' + inspecDate 
+          //   + '<br> This is the results: ' + results +
+          //   '</div>'+
+          //   '</div>';
+
+          //   let infowindow = new google.maps.InfoWindow({
+          //     content: contentString
+          //   });
+
+          //   let marker = new google.maps.Marker({
+          //     position: newPlace,
+          //     map: map,
+          //     title: data.dba_name
+          //   });
+
+          //   marker.addListener('click', () => {
+          //     infowindow.open(map, marker);
+          //   });
+          // }
+        }
+      </script>
+      <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAujKzyHSByW_g3z-CRvoxFEFIBjhe9YPg&callback=initMap"
+      async defer></script>
       
     <!-- Card that will be used to display the weather -->
     <div class="mdc-card template demo-card">
