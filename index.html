@@ -3,7 +3,6 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width">
-<!--     <link rel="manifest" href="manifest.json" /> -->
     <title>Big Project</title>
   <link href="https://unpkg.com/material-components-web@v4.0.0/dist/material-components-web.min.css" rel="stylesheet">
   <script src="https://unpkg.com/material-components-web@v4.0.0/dist/material-components-web.min.js"></script>
@@ -125,73 +124,6 @@
     </button>
     <p id="weatherInfo"></p>
     <div id="map"></div>
-      <script>
-        // This example displays a marker at the center of Australia.
-        // When the user clicks the marker, an info window opens.
-
-        function initMap() {
-          let map = new google.maps.Map(document.querySelector('#map'), {
-            zoom: 8,
-            center: {lat: 50, lng: 50}
-          });
-
-          let marker = new google.maps.Marker({
-            position: {lat: 50, lng: 50},
-            map: map
-          });
-
-          navigator.geolocation.getCurrentPosition((position) => {
-            let lat = position.coords.latitude;
-            let lng = position.coords.longitude;
-            map.setCenter({lat: lat, lng: lng});
-            console.log(lat);
-            console.log(lng);
-          });
-          // for (let data of inspection_data) {
-          //   console.log(data.address); 
-          //   let newPlace = {lat: parseFloat(data.latitude), lng: parseFloat(data.longitude)};
-
-          //   let name = data.dba_name;
-          //   let fType = data.facility_type;
-          //   let address = data.address;
-          //   //this returns a string that has a T value that you do not want
-          //   let overallDate = data.inspection_date;
-          //   //this splits the string so that you get an array with the date and a bunch of zeros
-          //   let arrayDate = overallDate.split("T");
-          //   //this takes the first element in the array (the date) and puts it into the variable inspecDate
-          //   let inspecDate = arrayDate.shift();
-          //   let results = data.results;
-          //   var contentString = '<div id="content">'+
-          //   '<div id="siteNotice">'+
-          //   '</div>'+
-          //   '<h1 id="firstHeading" class="firstHeading">' + name + '</h1>'+
-          //   '<div id="bodyContent">'+
-          //   'This is the name of the place: ' + name
-          //   + '<br> This is the facility type: ' + fType
-          //   + '<br> This is the address of the place: ' + address
-          //   + '<br> This is the inspectionDate: ' + inspecDate 
-          //   + '<br> This is the results: ' + results +
-          //   '</div>'+
-          //   '</div>';
-
-          //   let infowindow = new google.maps.InfoWindow({
-          //     content: contentString
-          //   });
-
-          //   let marker = new google.maps.Marker({
-          //     position: newPlace,
-          //     map: map,
-          //     title: data.dba_name
-          //   });
-
-          //   marker.addListener('click', () => {
-          //     infowindow.open(map, marker);
-          //   });
-          // }
-        }
-      </script>
-      <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAujKzyHSByW_g3z-CRvoxFEFIBjhe9YPg&callback=initMap"
-      async defer></script>
       
     <!-- Card that will be used to display the weather -->
     <div class="mdc-card template demo-card">
@@ -259,11 +191,6 @@
         previousCountries: '++id, country, date'
       });
       //-------------------------------------------------------------
-      
-//       db.previousCountries.add({
-//         title: "US",
-//         date: new Date()
-//       });
       
       getData = () => {
         //second api
@@ -340,32 +267,21 @@
            plotNumber++;
         
           for(const myCountry of userSelection) {
-            specificRow.push(myCountry);
-            //adds it to the database
-            db.previousCountries.add({
-              country: myCountry,
-              date: new Date()
-            });
-           //while in the loop, each country chosen to be plotted will be plotted
-           db.previousCountries.toCollection().last()
-          .then( (choice) => {
-              let p = document.createElement("p");
-              p.textContent = choice.country + " " + choice.date;
-              document.querySelector("p#historyDisplay").appendChild(p);
-           });
+              specificRow.push(myCountry);
+              //adds it to the database
+              db.previousCountries.add({
+                country: myCountry,
+                date: new Date()
+              });
+             //while in the loop, each country chosen to be plotted will be plotted
+             db.previousCountries.toCollection().last()
+            .then( (choice) => {
+                let p = document.createElement("p");
+                p.textContent = choice.country + " " + choice.date;
+                document.querySelector("p#historyDisplay").appendChild(p);
+             });
           }
-//           let p = document.createElement("p");
-//           p.textContent = a.country + " " + a.date;
-//           document.querySelector("p#historyDisplay").appendChild(p);
-          
-//           db.previousCountries.toArray()
-//           .then((arr) => {
-//             for(let a of arr){
-//               let p = document.createElement("p");
-//               p.textContent = a.country + " " + a.date;
-//               document.querySelector("p#historyDisplay").appendChild(p);
-//             }
-//           }); 
+
           realData.push(specificRow);
         
           //checking the data that is in the json, I looked at china and it started at 1-22-2020
@@ -425,12 +341,6 @@
             //there are two different callback functions, one is by default, the other one is optional where I want to handle the error
             navigator.geolocation.getCurrentPosition(success, error) ;
           }
-//         navigator.geolocation.getCurrentPosition((position) => {
-//           let lat = position.coords.latitude;
-//           let lng = position.coords.longitude;
-//           console.log(lat);
-//           console.log(lng);
-//         });
       });
       
       //the getCurrentPosition function gives back access to the location data
@@ -440,23 +350,6 @@
         
         //has my key and the right units, longitude and latitude
         let weatherApi = "https://api.openweathermap.org/data/2.5/weather?appid=f4969555fb49e9a8e0c6d4f181a2a3e0&units=imperial" + "&lat=" + lat + "&lon=" + lng;;
-        //returns street view
-//         let streetView = "https://maps.googleapis.com/maps/api/streetview?size=456x456&key=AIzaSyAujKzyHSByW_g3z-CRvoxFEFIBjhe9YPg&location=" + lat + "," + lng;
-//         const urls = [
-//           weatherApi,
-//           streetView
-//         ]
-//         //maps all of the fetches into an array
-//         const allRequests = urls.map( (url) => {
-//           fetch(url).then( (response) => {
-//                           response.json()
-//           })
-//         });
-        
-//         //need to access the data
-//         Promise.all(allRequests).then((arrayOfResponses) => {
-//           console.log("The data from the server:", arrayOfResponses);
-//         })
         
         fetch(weatherApi)
         .then(response => response.json())
@@ -477,10 +370,6 @@
       
       error = (err) => {
         weatherInfo.textContent = "unable to retrieve your location because either you blocked access or you exited the dialog box";
-        //console.warn(`ERROR(${err.code}): ${err.message}`);
-//         //         let myBr = document.c
-//         weatherInfo.appendChild(document.createElement("br"));
-//         weatherInfo.textContent += "Error code: " + error.code + " error message: " + error.message; 
       }
       
       //-------------------------------------------------------------
@@ -512,45 +401,6 @@
       //-------------------------------------------------------------
          
     google.charts.setOnLoadCallback(getData);
-
-    //-------------------------------------------------------------
-    //dexie database
-//     const db = new Dexie('BigProject');
-
-//     db.version(1).stores({
-//       favorites: '++id, country, date'
-//     });
-
-//     db.favorites.add({
-//       title: "Once Upon a Time in Hollywood",
-//       rating: 4,
-//       year: 2019,
-//       date: new Date()
-//     });
-
-//     db.favorites.add({
-//       title: "Pad Thai Hero",
-//       rating: 5,
-//       year: 2019
-//     });
-
-//     db.favorites.add({
-//       title: "Quantum",
-//       rating: 5,
-//       year: 2019
-//     });
-
-      //db.favorites.where("title").startsWith("O").delete();
-
-//   db.favorites.toArray()
-//   .then((arr) => {
-//     for(let a of arr){
-//       let p = document.createElement("p");
-//       p.textContent = a.title;
-//       document.body.appendChild(p);
-//     }
-//   }); 
-      //-------------------------------------------------------------
    
     //-------------------------------------------------------------
     //this has to do with the app shell logic itself
@@ -583,8 +433,35 @@
     })
       
     document.querySelector("div#home").style.display = "block";
-    //-------------------------------------------------------------
     </script>
+    
+    <!-- Map Stuff-->
+    <script>
+        // This example displays a marker at the center of Australia.
+        // When the user clicks the marker, an info window opens.
+
+        function initMap() {
+          let map = new google.maps.Map(document.querySelector('#map'), {
+            zoom: 8,
+            center: {lat: 50, lng: 50}
+          });
+
+          let marker = new google.maps.Marker({
+            position: {lat: 50, lng: 50},
+            map: map
+          });
+
+          navigator.geolocation.getCurrentPosition((position) => {
+            let lat = position.coords.latitude;
+            let lng = position.coords.longitude;
+            map.setCenter({lat: lat, lng: lng});
+            console.log(lat);
+            console.log(lng);
+          });
+        }
+      </script>
+      <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAujKzyHSByW_g3z-CRvoxFEFIBjhe9YPg&callback=initMap"
+      async defer></script>
 
   </body>
 </html> 
