@@ -378,11 +378,17 @@
         //convert into a google charts table
         //the first row needs to be what each column represents, otherwise the array would not work
         let data = new google.visualization.arrayToDataTable(dataArray);
+        data.addColumn('number', 'Day');
+        for(const myCountry of userSelection) {
+          
+        }
+        
         let options = {
           title: 'COVID-19 Confirmed Cases',
           curveType: 'function',
           legend: { position: 'bottom' }
         };
+        
         chart = new google.visualization.LineChart(document.querySelector('#curve_chart'));
         chart.draw(data, options);
       }
@@ -394,7 +400,8 @@
       drawTable = (dataArray) => {
         let data = new google.visualization.arrayToDataTable(dataArray);
         table = new google.visualization.Table(document.getElementById('table_div'));
-        table.draw(data, {width: '50%', height: '50%'});
+        //sort data descending based on the first column
+        table.draw(data, {width: '50%', height: '50%', sortAscending: false, sortColumn: 1});
       }
       //-------------------------------------------------------------
          
