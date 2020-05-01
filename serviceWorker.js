@@ -1,4 +1,4 @@
-const CACHE_NAME = 'big-project-v6';
+const CACHE_NAME = 'big-project-v7';
 //stores all of the files so that it can be accessed offline
 let urlsToCache = [
   './index.html',
@@ -10,8 +10,7 @@ let urlsToCache = [
   './icons/apple-touch-icon.png',
   './icons/favicon-16x16.png',
   './icons/favicon-32x32.png',
-  'https://pomber.github.io/covid19/timeseries.json',
-  ''
+  'https://pomber.github.io/covid19/timeseries.json'
 ];
 
 //installs the service worker
@@ -30,7 +29,7 @@ self.addEventListener('install', (event) => {
 //deletes all unwated cache
 self.addEventListener('activate', (event) => {
   console.log("activating");
-  let cacheWhitelist = ['big-project-v6'];
+  let cacheWhitelist = ['big-project-v7'];
 
   event.waitUntil(
     caches.keys().then((cacheNames) => {
