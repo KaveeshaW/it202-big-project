@@ -29,6 +29,10 @@
       display: none;
     }
     
+    h4#instructionsForLineChart {
+      display: none;
+    }
+    
   </style>
 
   </head>
@@ -86,9 +90,11 @@
     
     <div class="view" id="search"> 
       <h1>Search</h1>
-      <h3>Type different countries into the datalist below. Click the Add Country button to add the country to the list. When your done, click the plot button. <br>
-      You can also choose whether you want to display confirmed, death or recovered cases for each country you choose. 
-      <br>After plotting, please make sure to hit reset</h3>
+      <h3>Type different countries into the datalist below. Click the Add Country button to add the country to the list.<br>
+      You should also choose whether you want to display confirmed, death or recovered cases for each country you choose. 
+      <br>The last case that you choose is the one that will be plotted. 
+      <br>When your done, click the plot button. After plotting, please make sure to hit reset or add a country again. 
+      <br>Feel free to reset when you want.</h3>
       <br>
       <label for="country">Choose the countries you want to see from this list:</label>
       <input list="countryList" name="country" id="theCountryList"/>
@@ -138,6 +144,7 @@
       <h1>Line Chart</h1>
       <h4 id="waitForDataLine">This page will populate when you choose countries and plot them</h4>
       <div id="curve_chart" style="width: 900px; height: 500px"></div>
+      <h1 id="instructionsForLineChart">Mouse over the line(s) of the chart to see the data</h4>
     </div>
     
     <div class="view" id="history">
@@ -152,7 +159,7 @@
     <br>
     <button id="getLocation" class="mdc-button foo-button mdc-button--raised">
       <div class="mdc-button__ripple"></div>
-      <span class="mdc-button__label">Enable Location</span>
+      <span class="mdc-button__label">Get Current Weather Near You</span>
     </button>
     <p id="weatherInfo"></p>
       
@@ -270,7 +277,6 @@
       let userCase = document.querySelector("input#case");
       //stores the user case value before clearing
       let userChosenCase = userCase.value;
-      console.log("wowoeoragaga ", userChosenCase);
       document.querySelector("button#submitCase")
         .addEventListener("click", (event) => {
           userSpecifiedCase = true;
@@ -445,6 +451,7 @@
         chart = new google.visualization.LineChart(document.querySelector('#curve_chart'));
         
         chart.draw(data, options);
+        document.querySelector("h4#instructionsForLineChart").style.display = "block";
       }
       //-------------------------------------------------------------
       
