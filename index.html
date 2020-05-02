@@ -106,7 +106,8 @@
     
     <div class="view" id="history">
       <h1>History</h1>
-      This is the history of the countries you have plotted (not added to the list) so far 
+      This is the history of the last 10 countries you have plotted (not added to the list to plot) so far 
+      <div id="historyCardDisplay"></div>
     <p id="historyDisplay"></p>
     </div>
     
@@ -122,27 +123,12 @@
     <!-- Card that will be used to display the weather -->
     <div class="mdc-card template demo-card">
       <div class="mdc-card__primary-action demo-card__primary-action" tabindex="0">
-<!--         <div class="mdc-card__media mdc-card__media--16-9 demo-card__media" style="background-image: url(&quotutton;https://material-components.github.io/material-components-web-catalog/static/media/photos/3x2/2.jpg&quot;);"></div> -->
         <div class="demo-card__primary">
           <h2 class="demo-card__title mdc-typography mdc-typography--headline6">Our Changing Planet</h2>
           <h3 class="demo-card__subtitle mdc-typography mdc-typography--subtitle2">by Kurt Wagner</h3>
         </div>
         <div class="demo-card__secondary mdc-typography mdc-typography--body2">Visit ten places on our planet that are undergoing the biggest changes today.</div>
       </div>
-<!--       <div class="mdc-card__actions">
-        <div class="mdc-card__action-buttons">
-          <button class="mdc-button mdc-card__action mdc-card__action--button">  <span class="mdc-button__ripple"></span> Read</button>
-          <button class="mdc-button mdc-card__action mdc-card__action--button">  <span class="mdc-button__ripple"></span> Bookmark</button>
-        </div>
-        <div class="mdc-card__action-icons">
-          <button class="mdc-icon-button mdc-card__action mdc-card__action--icon--unbounded" aria-pressed="false" aria-label="Add to favorites" title="Add to favorites">
-            <i class="material-icons mdc-icon-button__icon mdc-icon-button__icon--on">favorite</i>
-            <i class="material-icons mdc-icon-button__icon">favorite_border</i>
-          </button>
-          <button class="mdc-icon-button material-icons mdc-card__action mdc-card__action--icon--unbounded" title="Share" data-mdc-ripple-is-unbounded="true">share</button>
-          <button class="mdc-icon-button material-icons mdc-card__action mdc-card__action--icon--unbounded" title="More options" data-mdc-ripple-is-unbounded="true" id="human">accessibility</button>
-        </div>
-      </div> -->
     </div> 
     <!-- Card that will be used to display the weather -->
     
@@ -253,12 +239,6 @@
         //populates the first row with the date and the country
         specificRow.push("Date");
 
-        //plots the user data in the history page
-        let eachPlotParagraph = document.createElement("p");
-         eachPlotParagraph.textContent = "This is plot number: " + plotNumber;
-         document.querySelector("p#historyDisplay").appendChild(eachPlotParagraph);
-         plotNumber++;
-
         for(const myCountry of userSelection) {
             specificRow.push(myCountry);
             //adds it to the database
@@ -266,20 +246,38 @@
               country: myCountry,
               date: new Date()
             });
-           //while in the loop, each country chosen to be plotted will be plotted
-           db.previousCountries.toCollection().last()
-          .then( (choice) => {
-              let p = document.createElement("p");
-              p.textContent = choice.country + " " + choice.date;
-              document.querySelector("p#historyDisplay").appendChild(p);
-           });
         }
+        
+        db.previousCountries.toArray().then( (arr) => {
+          let count = 0;
+          let historyDisplay = document.querySelector("div#historyCardDisplay");
+          //will always update so that data is accurate
+          //RESETS THE CARD DISPLAY
+          historyDisplay.textContent = "";
+          
+          //goes from most recent to least recent
+          //starts at arr.length - 1 because arr.length does not exist
+          for(let index = arr.length - 1; index >= 0; index--) {
+            //plots only 10 entries, since there could be more
+            if(count === 10) {
+              break;
+            }
+            else { 
+              let clone = document.querySelector("div.template").cloneNode(true);
+              clone.classList.remove("template");
+              clone.querySelector("h2").textContent = "Country Name: " + arr[index].country;
+              clone.querySelector("h3").textContent = "Date Plotted: " + arr[index].date;
+              clone.querySelector(".mdc-typography--body2").textContent = "ID Number: " + arr[index].id;
+              document.querySelector("div#historyCardDisplay").appendChild(clone);
+            }
+            count++;
+          }
+        });
 
         realData.push(specificRow);
 
-        //checking the data that is in the json, I looked at china and it started at 1-22-2020
-        //and the US started on that date too. From that point I figured that all of the dates start at the same point
-        //so I kind of hard coded it to just the US, but it will change based on the number of days in the data
+        //The json contains the number of Coronavirus confirmed cases, deaths, and recovered cases for every country and every day since 2020-1-22:
+        //I just choosed the US because that's what I was testing before
         for(let index = 0; index < specificData["US"].length; index++) {
           //this is done so that there isn't one big row but multiple small rows for each day
           specificRow = [];
@@ -330,7 +328,6 @@
         //convert into a google charts table
         //the first row needs to be what each column represents, otherwise the array would not work
         let data = new google.visualization.arrayToDataTable(dataArray);
-        console.log(data);
         
         let options = {
           title: 'COVID-19 Confirmed Cases',
@@ -388,7 +385,7 @@
         console.log(data);
         let clone = document.querySelector("div.template").cloneNode(true);
         clone.classList.remove("template");
-        clone.querySelector("h2").textContent = "Local Weather Report For " + data.name;
+        clone.querySelector("h2").textContent = "Local Weather Report For " + data.name + " At Lat: " + lat + " And Long: " + lng;
         clone.querySelector("h3").textContent = "The temperature currently in " + data.name + " is " + data.main.temp + " degrees fahrenheit, but it feels like " + data.main.feels_like + " degrees fahrenheit.";
         clone.querySelector(".mdc-typography--body2").textContent = "Wind speeds are at " + data.wind.speed + " miles per hour " + "and cloudiness is at " + data.clouds.all + "%"
         document.querySelector("div#weather").appendChild(clone);
