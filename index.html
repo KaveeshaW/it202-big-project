@@ -86,24 +86,50 @@
     
     <div class="view" id="search"> 
       <h1>Search</h1>
-      <h3>Type different countries into the datalist below. Click the Add Country button to add the country to the list. When your done, click the plot button.</h3>
+      <h3>Type different countries into the datalist below. Click the Add Country button to add the country to the list. When your done, click the plot button. <br>
+      You can also choose whether you want to display confirmed, death or recovered cases for each country you choose. 
+      <br>After plotting, please make sure to hit reset</h3>
       <br>
-      <input list="countryList" name="country" id="theCountryList">
+      <label for="country">Choose the countries you want to see from this list:</label>
+      <input list="countryList" name="country" id="theCountryList"/>
         <datalist id="countryList">
         </datalist>
       <button id="submitCountry" type="submit" class="mdc-button foo-button mdc-button--raised">
         <div class="mdc-button__ripple"></div>
         <span class="mdc-button__label">Add Country</span>
       </button>
+      
+      <p id="listOfCountries">List of countries you are going to plot: </p>
+      
+      <label for="case">Choose which case you want to see from this list:</label>
+      <input list="whichCase" name="case" id="case"/>
+        <datalist id="whichCase">
+          <option value="confirmed">
+          <option value="deaths">
+          <option value="recovered">
+        </datalist>
+      <button id="submitCase" type="submit" class="mdc-button foo-button mdc-button--raised">
+        <div class="mdc-button__ripple"></div>
+        <span class="mdc-button__label">Confirm Case</span>
+      </button>
+      
+      <p id="userChosenCase">You chose: </p>
+      <br><br>
+      
       <button id="plotThings" class="mdc-button foo-button mdc-button--raised">
         <div class="mdc-button__ripple"></div>
         <span class="mdc-button__label">Plot</span>
       </button>
-      <p id="listOfCountries">List of countries you are going to plot: </p>
+      <button id="buttonReset" class="mdc-button foo-button mdc-button--raised">
+        <div class="mdc-button__ripple"></div>
+        <span class="mdc-button__label">Reset</span>
+      </button>
+      
+      <p id="safeToPlot"></p>
     </div>
     
     <div class="view" id="table">
-      <h1>Table Of Confirmed Cases</h1> 
+      <h1 id="tableHeader">Table Of Confirmed Cases</h1> 
       <h4 id="waitForDataTable">This page will populate when you choose countries and plot them</h4>
     <div id="table_div"></div>
     </div>
@@ -135,7 +161,8 @@
       <div class="mdc-card__primary-action demo-card__primary-action" tabindex="0">
         <div class="demo-card__primary">
           <h2 class="demo-card__title mdc-typography mdc-typography--headline6">Our Changing Planet</h2>
-          <h3 class="demo-card__subtitle mdc-typography mdc-typography--subtitle2">by Kurt Wagner</h3>
+          <h3 class="demo-card__subtitle mdc-typography mdc-typography--subtitle2" id="firstSubheading">by Kurt Wagner</h3>
+          <h3 class="demo-card__subtitle mdc-typography mdc-typography--subtitle2" id="secondSubheading">by Kurt Wagner</h3>
         </div>
         <div class="demo-card__secondary mdc-typography mdc-typography--body2">Visit ten places on our planet that are undergoing the biggest changes today.</div>
       </div>
@@ -172,12 +199,16 @@
       let userPlotted = false;
       let stateNames = [];
       
+      //needed to check whether it is safe to plot or not
+      let userAddedCountry = false;
+      let userSpecifiedCase = false;
+      
       //-------------------------------------------------------------
       //dexie database
       const db = new Dexie('BigProject');
 
       db.version(1).stores({
-        previousCountries: '++id, country, date'
+        previousCountries: '++id, country, date, typeOfCase'
       });
       //-------------------------------------------------------------
       
@@ -202,6 +233,7 @@
       }
       
       //adds the country to a list that will be used to display later
+      //the users data is contained in whichCountry
       let whichCountry = document.querySelector("#theCountryList");
       //the selection of which country they want to plot
       let userSelection = [];
@@ -215,12 +247,15 @@
           specificRow = [];
           chart.clearChart();
           table.clearChart();
+          document.querySelector("p#safeToPlot").textContent = "";
+          document.querySelector("p#userChosenCase").textContent = "You chose: ";
+          document.querySelector("p#listOfCountries").textContent = "List of countries you are going to plot: ";
           //document.querySelector("p#historyDisplay").textContent = "";
         }
+        userAddedCountry = true;
         userSelection.push(whichCountry.value);
         let paragraph = document.querySelector("#listOfCountries");
         if(userPlotted) {
-          paragraph.textContent = "";
           userPlotted = false;
         }
         paragraph.textContent += whichCountry.value + ", ";
@@ -228,6 +263,23 @@
         //the value where the user choses the country is set to blank
         whichCountry.value = "";
         });
+      
+      //adds the case chosen by the user to a list that will be used to display later
+      //the users data is contained in userCase
+      //this will be cleared so I need a variable to store the value before clearing it
+      let userCase = document.querySelector("input#case");
+      //stores the user case value before clearing
+      let userChosenCase = userCase.value;
+      console.log("wowoeoragaga ", userChosenCase);
+      document.querySelector("button#submitCase")
+        .addEventListener("click", (event) => {
+          userSpecifiedCase = true;
+          userChosenCase = userCase.value;
+          let paragraph = document.querySelector("#userChosenCase");
+          paragraph.textContent = paragraph.textContent + " " + userCase.value;
+          //the value where the user choses the case is set to blank
+          userCase.value = "";
+      });
       
       //let totalDataPoints = 0;
       let maxDataPoints = 0;
@@ -244,90 +296,134 @@
       document.querySelector("#plotThings")
       .addEventListener("click", (event) =>                        
       {
-        userPlotted = true;
-        //populates the first row with the date and the country
-        specificRow.push("Date");
-        document.querySelector("h4#waitForDataTable").textContent = "";
-        document.querySelector("h4#waitForDataLine").textContent = "";
-
-        for(const myCountry of userSelection) {
-            specificRow.push(myCountry);
-            //adds it to the database
-            db.previousCountries.add({
-              country: myCountry,
-              date: new Date()
-            });
-        }
-        
-        db.previousCountries.toArray().then( (arr) => {
-          let count = 0;
-          let historyDisplay = document.querySelector("div#historyCardDisplay");
-          //will always update so that data is accurate
-          //RESETS THE CARD DISPLAY
-          historyDisplay.textContent = "";
-          
-          //goes from most recent to least recent
-          //starts at arr.length - 1 because arr.length does not exist
-          for(let index = arr.length - 1; index >= 0; index--) {
-            //plots only 10 entries, since there could be more
-            if(count === 10) {
-              break;
-            }
-            else { 
-              let clone = document.querySelector("div.template").cloneNode(true);
-              clone.classList.remove("template");
-              clone.querySelector("h2").textContent = "Country Name: " + arr[index].country;
-              clone.querySelector("h3").textContent = "Date Plotted: " + arr[index].date;
-              clone.querySelector(".mdc-typography--body2").textContent = "ID Number: " + arr[index].id;
-              document.querySelector("div#historyCardDisplay").appendChild(clone);
-            }
-            count++;
-          }
-        });
-
-        realData.push(specificRow);
-
-        //The json contains the number of Coronavirus confirmed cases, deaths, and recovered cases for every country and every day since 2020-1-22:
-        //I just choosed the US because that's what I was testing before
-        for(let index = 0; index < specificData["US"].length; index++) {
-          //this is done so that there isn't one big row but multiple small rows for each day
-          specificRow = [];
-          for(const country of userSelection) {
-              //I only want to push the date once per row
-              if(alreadyPushed === false) {
-                date = specificData[country][index].date;
-                specificRow.push(date);
-                alreadyPushed = true;
-              }
-              let numConfirmed = specificData[country][index].confirmed;
-              specificRow.push(numConfirmed);
-          }
-          //pushes the row into the table of data I will use to plot the graph and the table
-          realData.push(specificRow);
-          alreadyPushed = false;
-        }
-        //console.log(realData);
-        let paragraph = document.querySelector("#listOfCountries");
-        paragraph.textContent += "When you add countries after plotting, the table and chart will reset.";
-        document.querySelector("#search").style.display = "none";
-        document.querySelector("#table").style.display = "block";
-
-        //shows the right tab in the hamburger
-//           document.querySelector("[href='#search']").classList.remove("mdc-list-item--activated");
-//           document.querySelector("[href='#table']").classList.add("mdc-list-item--activated");
-        document.querySelectorAll("a.mdc-list-item").forEach(item => {
-          item.classList.remove("mdc-list-item--activated");
-        }); 
-        document.querySelector("[href='#table']").classList.add("mdc-list-item--activated");
-
-        if(navigator.onLine === true) {
-          drawTable(realData);
-          drawChart(realData);
+        console.log(userSpecifiedCase);
+        console.log(userAddedCountry);
+        //both have to be true, otherwise it is unsafe to plot
+        if(!(userSpecifiedCase && userAddedCountry)) {
+          document.querySelector("p#safeToPlot").textContent = "It is not safe to plot. Please make sure that you have specified at least one country and which case you want to display before trying to plot.";
         }
         else {
-          //DELETES ALL SUB ELEMENTS
-          document.querySelector("div#table").textContent = "cannot create table offline";
-          document.querySelector("div#chart").textContent = "cannot create line chart offline";
+          //need to reset it again
+          userSpecifiedCase = false;
+          userAddedCountry = false;
+          
+          userPlotted = true;
+          //populates the first row with the date and the country
+          specificRow.push("Date");
+          document.querySelector("h4#waitForDataTable").textContent = "";
+          document.querySelector("h4#waitForDataLine").textContent = "";
+
+          for(const myCountry of userSelection) {
+              specificRow.push(myCountry);
+              //adds it to the database
+              db.previousCountries.add({
+                country: myCountry,
+                date: new Date(),
+                typeOfCase: userChosenCase
+              });
+          }
+
+          db.previousCountries.toArray().then( (arr) => {
+            let count = 0;
+            let historyDisplay = document.querySelector("div#historyCardDisplay");
+            //will always update so that data is accurate
+            //RESETS THE CARD DISPLAY
+            historyDisplay.textContent = "";
+
+            //goes from most recent to least recent
+            //starts at arr.length - 1 because arr.length does not exist
+            for(let index = arr.length - 1; index >= 0; index--) {
+              //plots only 10 entries, since there could be more
+              if(count === 10) {
+                break;
+              }
+              else { 
+                let clone = document.querySelector("div.template").cloneNode(true);
+                clone.classList.remove("template");
+                clone.querySelector("h2").textContent = "Country Name: " + arr[index].country;
+                clone.querySelector("h3#firstSubheading").textContent = "The case type you chose was: " + arr[index].typeOfCase;
+                clone.querySelector("h3#secondSubheading").textContent = "Date Plotted: " + arr[index].date;
+                clone.querySelector(".mdc-typography--body2").textContent = "ID Number: " + arr[index].id;
+                document.querySelector("div#historyCardDisplay").appendChild(clone);
+              }
+              count++;
+            }
+          });
+
+          realData.push(specificRow);
+
+          //The json contains the number of Coronavirus confirmed cases, deaths, and recovered cases for every country and every day since 2020-1-22:
+          //I just choosed the US because that's what I was testing before
+          for(let index = 0; index < specificData["US"].length; index++) {
+            //this is done so that there isn't one big row but multiple small rows for each day
+            specificRow = [];
+            for(const country of userSelection) {
+                //I only want to push the date once per row
+                if(alreadyPushed === false) {
+                  date = specificData[country][index].date;
+                  specificRow.push(date);
+                  alreadyPushed = true;
+                }
+                let numCases = specificData[country][index][userChosenCase];
+                specificRow.push(numCases);
+            }
+            //pushes the row into the table of data I will use to plot the graph and the table
+            realData.push(specificRow);
+            alreadyPushed = false;
+          }
+          //console.log(realData);
+          let paragraph = document.querySelector("#listOfCountries");
+          paragraph.textContent += "When you add countries after plotting, the table and chart will reset.";
+          document.querySelector("#search").style.display = "none";
+          document.querySelector("#table").style.display = "block";
+
+          //shows the right tab in the hamburger
+  //           document.querySelector("[href='#search']").classList.remove("mdc-list-item--activated");
+  //           document.querySelector("[href='#table']").classList.add("mdc-list-item--activated");
+          document.querySelectorAll("a.mdc-list-item").forEach(item => {
+            item.classList.remove("mdc-list-item--activated");
+          }); 
+          document.querySelector("[href='#table']").classList.add("mdc-list-item--activated");
+
+          if(navigator.onLine === true) {
+            drawTable(realData);
+            drawChart(realData);
+          }
+          else {
+            //DELETES ALL SUB ELEMENTS
+            document.querySelector("div#table").textContent = "cannot create table offline";
+            document.querySelector("div#chart").textContent = "cannot create line chart offline";
+          }
+        }
+        
+      });
+      
+      document.querySelector("button#buttonReset")
+        .addEventListener("click", (event) => {
+         //clears everything if the user had already plotted
+        if(userPlotted) {
+          userSelection = [];
+          realData = [];
+          specificRow = [];
+          chart.clearChart();
+          table.clearChart();
+          userSpecifiedCase = false;
+          userAddedCountry = false;
+          document.querySelector("p#safeToPlot").textContent = "";
+          document.querySelector("p#userChosenCase").textContent = "You chose: ";
+          document.querySelector("p#listOfCountries").textContent = "List of countries you are going to plot: ";
+          //document.querySelector("p#historyDisplay").textContent = "";
+        }
+        //almost the same except I don't access the charts because those were not created
+        else {
+          userSelection = [];
+          realData = [];
+          specificRow = [];
+          userSpecifiedCase = false;
+          userAddedCountry = false;
+          document.querySelector("p#safeToPlot").textContent = "";
+          document.querySelector("p#userChosenCase").textContent = "You chose: ";
+          document.querySelector("p#listOfCountries").textContent = "List of countries you are going to plot: ";
         }
       });
       
@@ -339,9 +435,9 @@
         //convert into a google charts table
         //the first row needs to be what each column represents, otherwise the array would not work
         let data = new google.visualization.arrayToDataTable(dataArray);
-        
+        let myTitle = 'COVID-19 ' + userChosenCase + ' Cases';
         let options = {
-          title: 'COVID-19 Confirmed Cases',
+          title: myTitle,
           curveType: 'function',
           legend: { position: 'bottom' },
         };
@@ -360,6 +456,7 @@
         table = new google.visualization.Table(document.getElementById('table_div'));
         //sort data descending based on the first column
         table.draw(data, {width: '50%', height: '50%', sortAscending: false, sortColumn: 1});
+        document.querySelector("h1#tableHeader").textContent = "Table of " + userChosenCase + " Cases";
       }
       //-------------------------------------------------------------
          
@@ -403,8 +500,9 @@
         console.log(data);
         let clone = document.querySelector("div.template").cloneNode(true);
         clone.classList.remove("template");
-        clone.querySelector("h2").textContent = "Local Weather Report For " + data.name + " At Lat: " + lat + " And Long: " + lng;
-        clone.querySelector("h3").textContent = "The temperature currently in " + data.name + " is " + data.main.temp + " degrees fahrenheit, but it feels like " + data.main.feels_like + " degrees fahrenheit.";
+        clone.querySelector("h2").textContent = "Local Weather Report For " + data.name;
+        clone.querySelector("h3#firstSubheading").textContent = "Found at lat: " + lat + " and long: " + lng;
+        clone.querySelector("h3#secondSubheading").textContent = "The temperature currently in " + data.name + " is " + data.main.temp + " degrees fahrenheit, but it feels like " + data.main.feels_like + " degrees fahrenheit.";
         clone.querySelector(".mdc-typography--body2").textContent = "Wind speeds are at " + data.wind.speed + " miles per hour " + "and cloudiness is at " + data.clouds.all + "%"
         document.querySelector("div#weather").appendChild(clone);
       })
