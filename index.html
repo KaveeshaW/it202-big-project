@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width">
-    <title>Big Project</title>
+    <title>Coronavirus Data and Weather</title>
   <link href="https://unpkg.com/material-components-web@v4.0.0/dist/material-components-web.min.css" rel="stylesheet">
   <script src="https://unpkg.com/material-components-web@v4.0.0/dist/material-components-web.min.js"></script>
 
@@ -72,37 +72,47 @@
   <div class="mdc-top-app-bar__row">
     <section class="mdc-top-app-bar__section mdc-top-app-bar__section--align-start">
       <button class="material-icons mdc-top-app-bar__navigation-icon mdc-icon-button">menu</button>
-      <span class="mdc-top-app-bar__title">Big Project</span>
+      <span class="mdc-top-app-bar__title">Coronavirus Data And Weather</span>
     </section>
   </div>
 </header>
 
   <main class="mdc-top-app-bar--fixed-adjust">
     <div class="view" id="home"><h1>Home</h1>
-      <p>This is the big project. <br> The data comes from https://pomber.github.io/covid19/timeseries.json 
-      and https://api.openweathermap.org/data/2.5/weather (with the use of an api key)</p></div>
+      <p>This project visualizes coronavirus data and gives the user weather at their current location.
+      <br>This is a progressive web application. It uses Dexie.js and geolocation.
+      <br> The data comes from https://pomber.github.io/covid19/timeseries.json 
+      and https://api.openweathermap.org/data/2.5/weather</p></div>
     
-    <div class="view" id="search"> <h1>Search</h1> <br>
-    <input list="countryList" name="country" id="theCountryList">
-      <datalist id="countryList">
-      </datalist>
-    <button id="submitCountry" type="submit" class="mdc-button foo-button mdc-button--raised">
-      <div class="mdc-button__ripple"></div>
-      <span class="mdc-button__label">Add Country</span>
-    </button>
-    <button id="plotThings" class="mdc-button foo-button mdc-button--raised">
-      <div class="mdc-button__ripple"></div>
-      <span class="mdc-button__label">Plot</span>
-    </button>
-    <p id="listOfCountries"></p>
+    <div class="view" id="search"> 
+      <h1>Search</h1>
+      <h3>Type different countries into the datalist below. Click the Add Country button to add the country to the list. When your done, click the plot button.</h3>
+      <br>
+      <input list="countryList" name="country" id="theCountryList">
+        <datalist id="countryList">
+        </datalist>
+      <button id="submitCountry" type="submit" class="mdc-button foo-button mdc-button--raised">
+        <div class="mdc-button__ripple"></div>
+        <span class="mdc-button__label">Add Country</span>
+      </button>
+      <button id="plotThings" class="mdc-button foo-button mdc-button--raised">
+        <div class="mdc-button__ripple"></div>
+        <span class="mdc-button__label">Plot</span>
+      </button>
+      <p id="listOfCountries">List of countries you are going to plot: </p>
     </div>
     
-    <div class="view" id="table"><h1>Table Of Confirmed Cases</h1> 
+    <div class="view" id="table">
+      <h1>Table Of Confirmed Cases</h1> 
+      <h4 id="waitForDataTable">This page will populate when you choose countries and plot them</h4>
     <div id="table_div"></div>
     </div>
     
-    <div class="view" id="chart"><h1>Line Chart</h1>
-    <div id="curve_chart" style="width: 900px; height: 500px"></div></div>
+    <div class="view" id="chart">
+      <h1>Line Chart</h1>
+      <h4 id="waitForDataLine">This page will populate when you choose countries and plot them</h4>
+      <div id="curve_chart" style="width: 900px; height: 500px"></div>
+    </div>
     
     <div class="view" id="history">
       <h1>History</h1>
@@ -112,7 +122,7 @@
     </div>
     
     <div class="view" id="weather"><h1>Weather</h1>
-    <p>This page shows the weather at your current location if you allow it, otherwise it will not display anything</p>
+    <h4>This page shows the weather at your current location if you allow it, otherwise it will tell you it cannot retrieve the weather</h4>
     <br>
     <button id="getLocation" class="mdc-button foo-button mdc-button--raised">
       <div class="mdc-button__ripple"></div>
@@ -213,7 +223,7 @@
           paragraph.textContent = "";
           userPlotted = false;
         }
-        paragraph.textContent += whichCountry.value + " ";
+        paragraph.textContent += whichCountry.value + ", ";
         
         //the value where the user choses the country is set to blank
         whichCountry.value = "";
@@ -221,7 +231,6 @@
       
       //let totalDataPoints = 0;
       let maxDataPoints = 0;
-      let dataArray = [["date", "confirmed", "country"]];
       //console.log(specificData["US"]);
       //what will be plotted in the chart
       let realData = [];
@@ -238,6 +247,8 @@
         userPlotted = true;
         //populates the first row with the date and the country
         specificRow.push("Date");
+        document.querySelector("h4#waitForDataTable").textContent = "";
+        document.querySelector("h4#waitForDataLine").textContent = "";
 
         for(const myCountry of userSelection) {
             specificRow.push(myCountry);
