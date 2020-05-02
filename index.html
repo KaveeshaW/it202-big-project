@@ -353,23 +353,30 @@
       //-------------------------------------------------------------
          
     google.charts.setOnLoadCallback(getData);
-      
+    
+    //---------------------------------------------------
+    //weather
     const weatherInfo = document.querySelector("p#weatherInfo");
     //handles logic with the weather screen
     document.querySelector("button#getLocation").addEventListener("click", (event) => {
-
-       //does the browser support geolocation?
-       if (!navigator.geolocation) {
-          weatherInfo.textContent = 'Geolocation is not supported by your browser';
-        } else {
-          weatherInfo.textContent = 'Locating…';
-          //there are two different callback functions, one is by default, the other one is optional where I want to handle the error
-          navigator.geolocation.getCurrentPosition(success, error) ;
-        }
+       //cannot fetch while offline
+       if(navigator.onLine === false) {
+          weatherInfo.textContent = "Cannot retrieve data when offline. Please try again when your online.";
+       }
+       //user is online
+       else {
+         //the browser does not support geolocation
+         if (!navigator.geolocation) {
+            weatherInfo.textContent = 'Geolocation is not supported by your browser';
+         } 
+         else {
+           weatherInfo.textContent = 'Locating…';
+           //there are two different callback functions, one is by default, the other one is optional where I want to handle the error
+           navigator.geolocation.getCurrentPosition(success, error) ;
+         }  
+       }
     });
 
-    //---------------------------------------------------
-    //weather
     //the getCurrentPosition function gives back access to the location data
     success = (position) => {
       let lat = position.coords.latitude;
@@ -393,7 +400,7 @@
     }
 
     error = (err) => {
-      weatherInfo.textContent = "unable to retrieve your location because either you blocked access or you exited the dialog box";
+      weatherInfo.textContent = "Unable to retrieve your location because either you blocked access or you exited the dialog box";
     }
     //---------------------------------------------------
 

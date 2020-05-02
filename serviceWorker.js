@@ -13,7 +13,7 @@ let urlsToCache = [
   './icons/apple-touch-icon.png',
   './icons/favicon-16x16.png',
   './icons/favicon-32x32.png',
-  'https://unpkg.com/dexie@latest/dist/dexie.js',
+  'https://unpkg.com/dexie@latest/dist/dexie.js'
 ];
 
 //installs the service worker
