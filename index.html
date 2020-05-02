@@ -29,7 +29,7 @@
       display: none;
     }
     
-    h4#instructionsForLineChart {
+    h1#instructionsForLineChart {
       display: none;
     }
     
@@ -86,17 +86,23 @@
       <p>This project visualizes coronavirus data and gives the user weather at their current location.
       <br>This is a progressive web application. It uses Dexie.js and geolocation.
       <br> The data comes from https://pomber.github.io/covid19/timeseries.json 
-      and https://api.openweathermap.org/data/2.5/weather</p></div>
+      and https://api.openweathermap.org/data/2.5/weather
+      <br>
+      </p>
+      <h1>To get the charts to show up, request the information you want from the search page.
+      You can access that through the three line icon on the top left.</h1>
+    </div>
     
     <div class="view" id="search"> 
       <h1>Search</h1>
-      <h3>Type different countries into the datalist below. Click the Add Country button to add the country to the list.<br>
+      <h3>Pick different countries to graph from the datalist below. Click the Add Country button to add the country to the list of countries that will be graphed.<br>
+      <br> You can choose as many countries as you want. <br>
       You should also choose whether you want to display confirmed, death or recovered cases for each country you choose. 
       <br>The last case that you choose is the one that will be plotted. 
       <br>When your done, click the plot button. After plotting, please make sure to hit reset or add a country again. 
       <br>Feel free to reset when you want.</h3>
       <br>
-      <label for="country">Choose the countries you want to see from this list:</label>
+      <label for="country">Click the textbox to the right (or below) and choose the countries you want to see from this list:</label>
       <input list="countryList" name="country" id="theCountryList"/>
         <datalist id="countryList">
         </datalist>
@@ -105,9 +111,9 @@
         <span class="mdc-button__label">Add Country</span>
       </button>
       
-      <p id="listOfCountries">List of countries you are going to plot: </p>
+      <h2 id="listOfCountries">List of countries you are going to plot: </h2>
       
-      <label for="case">Choose which case you want to see from this list:</label>
+      <label for="case">Click the textbox to the right (or below) and choose which case (confirmed, deaths, or recovered) you want to see from this list:</label>
       <input list="whichCase" name="case" id="case"/>
         <datalist id="whichCase">
           <option value="confirmed">
@@ -119,7 +125,7 @@
         <span class="mdc-button__label">Confirm Case</span>
       </button>
       
-      <p id="userChosenCase">You chose: </p>
+      <h2 id="userChosenCase">You chose: </h2>
       <br><br>
       
       <button id="plotThings" class="mdc-button foo-button mdc-button--raised">
@@ -136,20 +142,21 @@
     
     <div class="view" id="table">
       <h1 id="tableHeader">Table Of Confirmed Cases</h1> 
-      <h4 id="waitForDataTable">This page will populate when you choose countries and plot them</h4>
+      <h4 id="waitForDataTable">This page will populate when you choose countries and plot them from the search tab</h4>
     <div id="table_div"></div>
     </div>
     
     <div class="view" id="chart">
       <h1>Line Chart</h1>
-      <h4 id="waitForDataLine">This page will populate when you choose countries and plot them</h4>
+      <h4 id="waitForDataLine">This page will populate when you choose countries and plot them from the search tab</h4>
+      <h1 id="instructionsForLineChart">Mouse over the line(s) of the chart to see the data</h1>
       <div id="curve_chart" style="width: 900px; height: 500px"></div>
-      <h1 id="instructionsForLineChart">Mouse over the line(s) of the chart to see the data</h4>
+      
     </div>
     
     <div class="view" id="history">
       <h1>History</h1>
-      This is the history of the last 10 countries you have plotted (not added to the list to plot) so far 
+      This is the history of the last 10 countries you have plotted (not added to the list to plot) so far. If you haven't plotted anything, go to the search tab for more details. 
       <div id="historyCardDisplay"></div>
     <p id="historyDisplay"></p>
     </div>
@@ -306,7 +313,7 @@
         console.log(userAddedCountry);
         //both have to be true, otherwise it is unsafe to plot
         if(!(userSpecifiedCase && userAddedCountry)) {
-          document.querySelector("p#safeToPlot").textContent = "It is not safe to plot. Please make sure that you have specified at least one country and which case you want to display before trying to plot.";
+          document.querySelector("p#safeToPlot").textContent = "It is not safe to plot at this time. Please make sure that you have specified at least one country and which case (confirmed, deaths, or recovered) you want to display (by clicking those buttons to the right of the textbox) before trying to plot.";
         }
         else {
           //need to reset it again
@@ -451,7 +458,7 @@
         chart = new google.visualization.LineChart(document.querySelector('#curve_chart'));
         
         chart.draw(data, options);
-        document.querySelector("h4#instructionsForLineChart").style.display = "block";
+        document.querySelector("h1#instructionsForLineChart").style.display = "block";
       }
       //-------------------------------------------------------------
       
@@ -459,10 +466,17 @@
       //creates the table 
       let table;
       drawTable = (dataArray) => {
-        let data = new google.visualization.arrayToDataTable(dataArray);
+        //I am going to reverse the array because it doesn't seem to like my numbers when sorting
+        let firstPart = dataArray.slice(0, 1);
+        let reversed = dataArray.slice(1, dataArray.length).reverse();
+        for(let i = firstPart.length - 1; i >=0; i--) {
+          reversed.unshift(firstPart[i]);
+        }
+        let data = new google.visualization.arrayToDataTable(reversed);
         table = new google.visualization.Table(document.getElementById('table_div'));
+        //gets the first row
         //sort data descending based on the first column
-        table.draw(data, {width: '50%', height: '50%', sortAscending: false, sortColumn: 1});
+        table.draw(data, {width: '50%', height: '50%'});
         document.querySelector("h1#tableHeader").textContent = "Table of " + userChosenCase + " Cases";
       }
       //-------------------------------------------------------------
