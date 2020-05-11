@@ -2,4 +2,4 @@ This project visualizes data for the coronavirus and displays the weather at you
 
 To start, please use the search screen, accessed from clicking on the three lines on the top left corner of the app. The search screen requires at least one country and one case (confirmed, deaths, or recovered). If you do not plot those, then you will not be able to see the table, line chart, or history screens correctly. 
 
-NOTE: if you want to plot the United States, the data has it as us so you would have to type it in like that
+NOTE: if you want to plot the United States, the data has it as "us" so one would have to type it in like us
